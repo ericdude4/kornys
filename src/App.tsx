@@ -2,7 +2,7 @@ import '@shopify/polaris/build/esm/styles.css';
 import './App.scss';
 import Main from './components/Main';
 import enTranslations from '@shopify/polaris/locales/en.json';
-import { AppProvider, Page, LegacyCard, Button } from '@shopify/polaris';
+import { AppProvider } from '@shopify/polaris';
 
 function App() {
   return (
