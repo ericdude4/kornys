@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from "react-dom/client";
 import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
 import ErrorPage from '../ErrorPage';
 import Root, {loader as rootLoader} from '../routes/Root';
+import Products from "./Products";
 
 function Main() {
     const router = createBrowserRouter([
@@ -13,7 +12,13 @@ function Main() {
             path: "/:storeUrl",
             element: <Root />,
             errorElement: <ErrorPage />,
-            loader: rootLoader
+            loader: rootLoader,
+            children: [
+              {
+                path: "products",
+                element: <Products />,
+              },
+            ],
         },
     ]);
 

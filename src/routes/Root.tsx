@@ -1,7 +1,7 @@
-import { Frame, Navigation, TopBar, ActionList, Icon, Text } from '@shopify/polaris';
+import { Frame, Navigation, TopBar } from '@shopify/polaris';
 import { HomeMinor, SettingsMinor, ProductsMinor } from '@shopify/polaris-icons';
-import { useState, useCallback, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
 import { get } from '../fetch';
 
@@ -19,6 +19,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function Root() {
     const store: any = useLoaderData();
+    const navigate = useNavigate();
+    let location = useLocation();
 
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
@@ -70,20 +72,23 @@ export default function Root() {
         />
     );
 
+    console.log(location)
     const navigationMarkup = (
         <Navigation location="/">
             <Navigation.Section
                 items={[
                     {
-                        url: '/contacts',
+                        onClick: () => { navigate('/' + store.url) },
                         label: 'Home',
                         icon: HomeMinor,
+                        selected: location.pathname == '/' + store.url
                     },
                     {
-                        url: '#',
+                        onClick: () => { navigate('/' + store.url + '/products') },
                         excludePaths: ['#'],
                         label: 'Products',
                         icon: ProductsMinor,
+                        selected: location.pathname == '/' + store.url + '/products'
                     },
                     {
                         url: '#',
@@ -103,6 +108,7 @@ export default function Root() {
             navigation={navigationMarkup}
             onNavigationDismiss={toggleMobileNavigationActive}
             showMobileNavigation={mobileNavigationActive}>
+            <Outlet />
         </Frame>
 
     );
