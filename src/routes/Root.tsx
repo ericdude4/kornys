@@ -1,17 +1,20 @@
 import { Frame, Navigation, TopBar, ActionList, Icon, Text } from '@shopify/polaris';
 import { HomeMinor, SettingsMinor, ProductsMinor } from '@shopify/polaris-icons';
 import { useState, useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
+import { get } from '../fetch';
 
 export async function loader({ params }: LoaderFunctionArgs) {
-    return {
-        "url": params.storeUrl,
-        "name": "Inventory Test Store",
-        "connected_stores": [
-            { "name": "Inventory Test Store 2", "url": "inventory-test-store-2" },
-            { "name": "Inventory Test Store 3", "url": "inventory-test-store-2" }
-        ]
-    }
+    let storeUrl = params.storeUrl || ""
+    return get("/stores/" + storeUrl.replace(".myshopify.com", ""))
+        .then(store => {
+            return {
+                url: store.url,
+                name: store.name,
+                connected_stores: store.connected_stores.map((connected_store: any) => { return { name: connected_store.name, url: connected_store.url } })
+            }
+        });
 }
 
 export default function Root() {
@@ -33,7 +36,15 @@ export default function Root() {
         accessibilityLabel: 'Synkro: Inventory sync',
     };
 
-    const userMenuOptions = store.connected_stores.map((store: any) => { return { items: [{ content: store.url }] } })
+    const userMenuOptions = store.connected_stores.map((store: any) => {
+        return {
+            items: [
+                {
+                    content: <Link className='switch-store-link' to={"/" + store.url.replace(".myshopify.com", "")}>{store.name}</Link>
+                }
+            ]
+        }
+    })
 
     const userMenuMarkup = (
         <TopBar.UserMenu
