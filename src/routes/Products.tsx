@@ -6,29 +6,28 @@ import {
     LegacyCard,
     useIndexResourceState,
     Text,
-    Icon,
     Page,
+    Badge,
+    Filters,
 } from '@shopify/polaris';
-
-import {
-    TickSmallMinor
-} from '@shopify/polaris-icons';
+import { useCallback, useState } from 'react';
 
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
     const page = new URL(request.url).searchParams.get('page') || 1;
+    const title = new URL(request.url).searchParams.get('title') || '';
 
-    return get("/stores/" + storeHost(params.storeUrl) + "/products?page=" + page)
+    return get("/stores/" + storeHost(params.storeUrl) + "/products?page=" + page + "&title=" + title)
         .then(products_page => { return products_page });
 }
 
 type Variant = {
-    id: number,
+    id: string,
     sync: string,
 }
 
 type Product = {
-    id: number;
+    id: string;
     title: string;
     sync: boolean;
     variants: [Variant];
@@ -101,9 +100,9 @@ export default function Products() {
     const rowMarkup = products.map(
         ({ id, title, variants, sync }: Product, index: number) => (
             <IndexTable.Row
-                id={id.toString()}
+                id={id}
                 key={id}
-                selected={selectedResources.includes(id.toString())}
+                selected={selectedResources.includes(id)}
                 position={index}
             >
                 <IndexTable.Cell>
@@ -118,13 +117,33 @@ export default function Products() {
                 </IndexTable.Cell>
                 <IndexTable.Cell>
                     <Text as="span" alignment="center" numeric>
-                        {sync ? <Icon source={TickSmallMinor} color={'primary'} /> : <Icon source={TickSmallMinor} color={'magic'} />}
+                        {sync ? <Badge status='success'>Syncing</Badge> : <Badge>Disabled</Badge>}
                     </Text>
                 </IndexTable.Cell>
             </IndexTable.Row>
         ),
     );
 
+    const [queryValue, setQueryValue] = useState('');
+
+    const handleQueryValueRemove = useCallback(() => {
+        setQueryValue('')
+        navigateProductsPage(1, queryValue)
+    }, []);
+
+    const handleQueryValueBlur = useCallback(() => {
+        // request new products with title filter and switch page to 1
+        navigateProductsPage(1, queryValue)
+    }, [queryValue]);
+
+    const handleClearAll = useCallback(() => {
+        console.log('clear all')
+        handleQueryValueRemove();
+    }, [handleQueryValueRemove]);
+
+    function navigateProductsPage(page: number, titleFilter: string) {
+        navigate('/' + store.url + '/products?page=' + page + '&title=' + titleFilter)
+    }
 
     return (
         <Page
@@ -133,14 +152,26 @@ export default function Products() {
                 hasPrevious: products_page.page_number > 1,
                 hasNext: products_page.page_number < products_page.total_pages,
                 onNext: () => {
-                    navigate('/' + store.url + '/products?page=' + (products_page.page_number + 1))
+                    navigateProductsPage(products_page.page_number + 1, queryValue)
                 },
                 onPrevious: () => {
-                    navigate('/' + store.url + '/products?page=' + (products_page.page_number - 1))
+                    navigateProductsPage(products_page.page_number - 1, queryValue)
                 }
             }}
         >
             <LegacyCard>
+                <div style={{ padding: '16px' }}>
+                    <Filters
+                        filters={[]}
+                        queryValue={queryValue}
+                        onQueryChange={setQueryValue}
+                        onQueryBlur={() => handleQueryValueBlur()}
+                        onQueryClear={handleQueryValueRemove}
+                        onClearAll={handleClearAll}
+                        queryPlaceholder={'Filter products'}
+                        helpText={'Enter a product title to search your products'}
+                    />
+                </div>
                 <IndexTable
                     resourceName={resourceName}
                     itemCount={products.length}
@@ -155,7 +186,7 @@ export default function Products() {
                         {
                             id: 'variant-count',
                             title: (
-                                <Text as="span" alignment="end">
+                                <Text as="span" alignment="center">
                                     Variant count
                                 </Text>
                             ),
@@ -163,8 +194,8 @@ export default function Products() {
                         {
                             id: 'sync',
                             title: (
-                                <Text as="span" alignment="end">
-                                    Syncing enabled
+                                <Text as="span" alignment='center'>
+                                    Sync status
                                 </Text>
                             ),
                         },
