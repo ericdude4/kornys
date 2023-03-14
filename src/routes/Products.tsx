@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
+import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams, useRouteLoaderData } from 'react-router-dom'
 import { get } from '../fetch';
 import { storeHost, truncate } from '../utils';
 import {
@@ -15,9 +15,11 @@ import {
 } from '@shopify/polaris-icons';
 
 
-export async function loader({ params }: LoaderFunctionArgs) {
-    return get("/stores/" + storeHost(params.storeUrl) + "/products")
-        .then(products => { return products });
+export async function loader({ params, request }: LoaderFunctionArgs) {
+    const page = new URL(request.url).searchParams.get('page') || 1;
+
+    return get("/stores/" + storeHost(params.storeUrl) + "/products?page=" + page)
+        .then(products_page => { return products_page });
 }
 
 type Variant = {
@@ -33,7 +35,12 @@ type Product = {
 };
 
 export default function Products() {
-    const products: any = useLoaderData();
+    const store: any = useRouteLoaderData("root");
+
+    const products_page: any = useLoaderData();
+    const products: any = products_page.data;
+
+    const navigate = useNavigate();
 
     const resourceName = {
         singular: 'product',
@@ -123,8 +130,14 @@ export default function Products() {
         <Page
             title="Products"
             pagination={{
-                hasPrevious: true,
-                hasNext: true,
+                hasPrevious: products_page.page_number > 1,
+                hasNext: products_page.page_number < products_page.total_pages,
+                onNext: () => {
+                    navigate('/' + store.url + '/products?page=' + (products_page.page_number + 1))
+                },
+                onPrevious: () => {
+                    navigate('/' + store.url + '/products?page=' + (products_page.page_number - 1))
+                }
             }}
         >
             <LegacyCard>

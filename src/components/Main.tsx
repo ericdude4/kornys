@@ -13,6 +13,7 @@ function Main() {
       element: <Root />,
       errorElement: <ErrorPage />,
       loader: rootLoader,
+      id: "root",
       children: [
         {
           path: "products",
