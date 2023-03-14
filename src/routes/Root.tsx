@@ -72,7 +72,6 @@ export default function Root() {
         />
     );
 
-    console.log(location)
     const navigationMarkup = (
         <Navigation location="/">
             <Navigation.Section
