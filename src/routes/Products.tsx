@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useParams, useRouteLoaderData } from 'react-router-dom'
-import { get } from '../fetch';
+import { get, post } from '../fetch';
 import { storeHost, truncate } from '../utils';
 import {
     IndexTable,
@@ -51,32 +51,29 @@ export default function Products() {
 
     const promotedBulkActions = [
         {
-            content: 'Capture payments',
-            onAction: () => console.log('Todo: implement payment capture'),
+            content: 'Clone products',
+            onAction: () => console.log('Todo: implement clone products'),
         },
         {
-            title: 'Edit customers',
+            title: 'Change sync status',
             actions: [
                 {
-                    content: 'Add customers',
-                    onAction: () => console.log('Todo: implement adding customers'),
+                    content: 'Disable syncing',
+                    onAction: () => {
+                        post("/stores/" + storeHost(store.url) + "/products/bulk_action", { action: "disable_sync", product_ids: selectedResources })
+                            .then(() => {
+                                navigateProductsPage(products_page.page_number, queryValue)
+                            })
+                    },
                 },
                 {
-                    content: 'Delete customers',
-                    onAction: () => console.log('Todo: implement deleting customers'),
-                },
-            ],
-        },
-        {
-            title: 'Export',
-            actions: [
-                {
-                    content: 'Export as PDF',
-                    onAction: () => console.log('Todo: implement PDF exporting'),
-                },
-                {
-                    content: 'Export as CSV',
-                    onAction: () => console.log('Todo: implement CSV exporting'),
+                    content: 'Enable syncing',
+                    onAction: () => {
+                        post("/stores/" + storeHost(store.url) + "/products/bulk_action", { action: "enable_sync", product_ids: selectedResources })
+                            .then(() => {
+                                navigateProductsPage(products_page.page_number, queryValue)
+                            })
+                    },
                 },
             ],
         },
@@ -137,7 +134,6 @@ export default function Products() {
     }, [queryValue]);
 
     const handleClearAll = useCallback(() => {
-        console.log('clear all')
         handleQueryValueRemove();
     }, [handleQueryValueRemove]);
 

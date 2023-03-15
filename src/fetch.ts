@@ -28,3 +28,21 @@ export async function get(path: String) {
             }
         })
 }
+
+export async function post(path: String, body: object) {
+    return fetch(baseUrl + path, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + window.Synkro.accessToken
+        },
+        body: JSON.stringify(body)
+    })
+        .then((response) => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw response;
+            }
+        })
+}
