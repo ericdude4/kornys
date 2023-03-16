@@ -1,45 +1,49 @@
 import { LegacyCard, Page, Tabs } from '@shopify/polaris';
 import { useState, useCallback, useEffect } from 'react';
-import { Outlet, useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { storeHost } from '../utils';
 
 export default function Onboarding() {
     const store: any = useRouteLoaderData("root");
     const navigate = useNavigate();
+    let location = useLocation();
 
     useEffect(() => {
+        // todo: determine which onboarding step to send user to
         navigate('/' + storeHost(store.url) + '/onboarding/connect')
     }, [])
+
+    const tabs = [
+        {
+            id: 'connect',
+            path: 'connect',
+            content: 'Connect to Synkro account'
+        },
+        {
+            id: 'choose-sync-field',
+            path: 'choose-sync-field',
+            content: 'Choose sync field',
+        }
+    ];
 
     const [selected, setSelected] = useState(0);
 
     const handleTabChange = useCallback(
-        (selectedTabIndex: number) => setSelected(selectedTabIndex),
+        (selectedTabIndex: number) => {
+            setSelected(selectedTabIndex)
+            navigate('/' + storeHost(store.url) + '/onboarding/' + tabs[selectedTabIndex].path)
+        },
         [],
     );
 
-    const tabs = [
-        {
-            id: 'connect-to-user',
-            content: 'Connect to Synkro account',
-            path: 'login'
-        },
-        {
-            id: 'accepts-marketing-1',
-            content: 'Accepts marketing',
-            panelID: 'accepts-marketing-content-1',
-        },
-        {
-            id: 'repeat-customers-1',
-            content: 'Repeat customers',
-            panelID: 'repeat-customers-content-1',
-        },
-        {
-            id: 'prospects-1',
-            content: 'Prospects',
-            panelID: 'prospects-content-1',
-        },
-    ];
+
+    useEffect(() => {
+        const newSelectedTabIndex = tabs.findIndex(tab => location.pathname.includes(tab.path))
+        // newSelectedTabIndex could be -1 if findIndex returns no records. in that case, don't change selected tab
+        if (newSelectedTabIndex >= 0) {
+            setSelected(newSelectedTabIndex)
+        }
+    }, [location])
 
     return (
         <Page title={'Setup Synkro for ' + store.url}>

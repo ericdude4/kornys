@@ -30,7 +30,7 @@ export default function ConnectAccount() {
 
                     <ButtonGroup>
                         <Button onClick={handleToggle} ariaExpanded={open} ariaControls="basic-collapsible">Change Synkro account</Button>
-                        <Button primary onClick={() => { navigate('/' + storeHost(store.url)) }}>Continue to next step</Button>
+                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/choose-sync-field') }}>Continue to next step</Button>
                     </ButtonGroup>
 
                     <Collapsible
