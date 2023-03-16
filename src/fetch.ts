@@ -39,7 +39,8 @@ export async function post(path: String, body: object) {
         body: JSON.stringify(body)
     })
         .then((response) => {
-            if (response.ok) {
+            if ((response.status >= 200 && response.status < 300) || (response.status >= 400 && response.status < 404)) {
+                // These should all be client errors formatted as json
                 return response.json()
             } else {
                 throw response;
