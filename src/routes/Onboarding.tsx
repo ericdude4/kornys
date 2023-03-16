@@ -22,7 +22,7 @@ export default function Onboarding() {
         {
             id: 'choose-sync-field',
             path: 'choose-sync-field',
-            content: 'Choose sync field',
+            content: 'Choose sync field'
         }
     ];
 
