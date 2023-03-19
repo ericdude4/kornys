@@ -26,26 +26,26 @@ export default function ChooseSyncField() {
         plural: 'variants',
     };
 
-    const [variants, setVariants] = useState([]);
+    const [variantsPage, setVariantsPage] = useState({ data: [], page_number: 0, total_pages: 0 });
 
     const { selectedResources, allResourcesSelected, handleSelectionChange } =
-        useIndexResourceState(variants);
+        useIndexResourceState(variantsPage.data);
 
-    const checkForDuplicates = () => {
+    const checkForDuplicates = (page: number) => {
         setChecking(true)
         setOpen(true)
 
-        get("/stores/" + storeHost(store.url) + "/duplicate_sync_fields?sync_property=" + value + "&page=" + 0)
+        get("/stores/" + storeHost(store.url) + "/duplicate_sync_fields?sync_property=" + value + "&page=" + page)
             .then(variants_page => {
                 setChecking(false)
-                setVariants(variants_page.data)
+                setVariantsPage(variants_page)
             });
     }
 
     const syncPropertyMarkup = (<strong>{value == 'sku' ? 'SKU' : 'barcode'}</strong>)
 
 
-    const rowMarkup = variants.map(
+    const rowMarkup = variantsPage.data.map(
         ({ id, product, title, sku, barcode }: any, index) => (
             <IndexTable.Row
                 id={id}
@@ -72,6 +72,16 @@ export default function ChooseSyncField() {
             </IndexTable.Row>
         ),
     );
+
+
+    const promotedBulkActions = [
+        {
+            content: 'Open in bulk editor',
+            onAction: () => {
+                window.open('https://' + store.url + '/admin/bulk?resource_name=ProductVariant&edit=' + value + '&managed=true&exclude_composite=true&ids=' + selectedResources.join(','))
+            },
+        }
+    ];
 
     return (
         <AlphaStack gap="4">
@@ -114,21 +124,22 @@ export default function ChooseSyncField() {
             ) : (
                 <Columns gap="4" columns={['twoThirds', 'oneThird']}>
                     <ButtonGroup>
-                        <Button primary onClick={checkForDuplicates}>
+                        <Button primary onClick={() => checkForDuplicates(1)}>
                             Check for duplicated {value == 'sku' ? 'SKU' : 'barcode'}s within your store
                         </Button>
                     </ButtonGroup>
 
-                    {variants.length > 0 ? (
+                    {variantsPage.data.length > 0 ? (
                         <div id='duplicate-sku-pagination'>
                             <Pagination
-                                hasPrevious
+                                label={variantsPage.page_number + " of " + variantsPage.total_pages}
+                                hasPrevious={variantsPage.page_number > 0}
                                 onPrevious={() => {
-                                    console.log('Previous');
+                                    checkForDuplicates(variantsPage.page_number - 1)
                                 }}
-                                hasNext
+                                hasNext={variantsPage.page_number < variantsPage.total_pages}
                                 onNext={() => {
-                                    console.log('Next');
+                                    checkForDuplicates(variantsPage.page_number + 1)
                                 }}
                             />
                         </div>
@@ -147,7 +158,7 @@ export default function ChooseSyncField() {
                 <LegacyCard>
                     <IndexTable
                         resourceName={resourceName}
-                        itemCount={variants.length}
+                        itemCount={variantsPage.data.length}
                         selectedItemsCount={
                             allResourcesSelected ? 'All' : selectedResources.length
                         }
@@ -158,6 +169,7 @@ export default function ChooseSyncField() {
                             { title: 'SKU' },
                             { title: 'Barcode' },
                         ]}
+                        promotedBulkActions={promotedBulkActions}
                     >
                         {rowMarkup}
                     </IndexTable>
