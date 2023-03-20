@@ -2,14 +2,15 @@ import {
     IndexTable, LegacyCard, useIndexResourceState, Button, Text, Divider, AlphaStack, Collapsible, ButtonGroup, RadioButton, Pagination, Columns, Select, Banner
 } from '@shopify/polaris';
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useRouteLoaderData } from 'react-router-dom';
-import { get } from '../fetch';
-import { storeHost, truncate } from '../utils';
+import { ActionFunctionArgs, redirect, useNavigate, useRevalidator, useRouteLoaderData } from 'react-router-dom';
+import { get, post } from '../fetch';
+import { authenticatedRedirect, storeHost, truncate } from '../utils';
 import partyPopper from '../images/party-popper.svg';
 
 export default function ChooseSyncField() {
     const store: any = useRouteLoaderData("root");
     const navigate = useNavigate();
+    let revalidator = useRevalidator();
 
     const [value, setValue] = useState(store.user.sync_property);
 
@@ -63,10 +64,14 @@ export default function ChooseSyncField() {
         setOpen(false)
     }, [value]);
 
-    const continueToNextStep = () => {
+    const continueToNextStep = async () => {
         let syncProperty = value == 'sku' ? 'SKU' : 'barcode'
         if (variantsPage.total_entries == 0 || window.confirm("You still have duplicated " + syncProperty + 's in your store. Variants with these ' + syncProperty + 's will have their inventory levels synced within the store. Are you sure you would like to proceed?')) {
-            navigate('/' + storeHost(store.url) + '/onboarding/location-connections')
+            post("/user", { sync_property: value })
+                .then(() => {
+                    revalidator.revalidate();
+                    navigate('/' + storeHost(store.url) + '/onboarding/location-connections')
+                })
         }
     }
 
@@ -169,11 +174,11 @@ export default function ChooseSyncField() {
                 )}
                 {checkedOnce ? (
                     <Button primary onClick={() => continueToNextStep()}>
-                        Continue to next step
+                        Save and continue to next step
                     </Button>
                 ) : (
                     <Button disabled>
-                        Continue to next step
+                        Save and continue to next step
                     </Button>
                 )}
             </ButtonGroup>

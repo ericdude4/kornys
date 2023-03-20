@@ -10,6 +10,7 @@ import Onboarding from "../routes/Onboarding";
 import { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
+import ConfigureLocationConnections from "./ConfigureLocationConnections";
 
 function Main() {
   const router = createBrowserRouter([
@@ -30,12 +31,16 @@ function Main() {
           children: [
             {
               path: "connect",
-              element: <ConnectAccount/>,
+              element: <ConnectAccount />,
               action: loginAction
             },
             {
               path: "choose-sync-field",
-              element: <ChooseSyncField/>
+              element: <ChooseSyncField />
+            },
+            {
+              path: "location-connections",
+              element: <ConfigureLocationConnections />
             },
           ]
         },

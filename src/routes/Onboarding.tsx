@@ -10,7 +10,7 @@ export default function Onboarding() {
 
     useEffect(() => {
         // todo: determine which onboarding step to send user to
-        navigate('/' + storeHost(store.url) + '/onboarding/connect')
+        // navigate('/' + storeHost(store.url) + '/onboarding/connect')
     }, [])
 
     const tabs = [
@@ -23,7 +23,12 @@ export default function Onboarding() {
             id: 'choose-sync-field',
             path: 'choose-sync-field',
             content: 'Choose sync field'
-        }
+        },
+        {
+            id: 'location-connections',
+            path: 'location-connections',
+            content: 'Location connections'
+        },
     ];
 
     const [selected, setSelected] = useState(0);
@@ -38,7 +43,7 @@ export default function Onboarding() {
 
 
     useEffect(() => {
-        const newSelectedTabIndex = tabs.findIndex(tab => location.pathname.includes(tab.path))
+        const newSelectedTabIndex = tabs.findIndex(tab => location.pathname.endsWith(tab.path))
         // newSelectedTabIndex could be -1 if findIndex returns no records. in that case, don't change selected tab
         if (newSelectedTabIndex >= 0) {
             setSelected(newSelectedTabIndex)
