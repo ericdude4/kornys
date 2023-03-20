@@ -1,10 +1,11 @@
 import {
-    IndexTable, LegacyCard, useIndexResourceState, Button, Text, Divider, AlphaStack, Collapsible, ButtonGroup, RadioButton, Pagination, Columns, Select
+    IndexTable, LegacyCard, useIndexResourceState, Button, Text, Divider, AlphaStack, Collapsible, ButtonGroup, RadioButton, Pagination, Columns, Select, Banner
 } from '@shopify/polaris';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get } from '../fetch';
 import { storeHost, truncate } from '../utils';
+import partyPopper from '../images/party-popper.svg';
 
 export default function ChooseSyncField() {
     const store: any = useRouteLoaderData("root");
@@ -19,6 +20,10 @@ export default function ChooseSyncField() {
 
     const [checking, setChecking] = useState(false);
 
+    const [checkedOnce, setCheckedOnce] = useState(false);
+
+    const [dismissedMessage, setDismissedMessage] = useState(false);
+
     const [open, setOpen] = useState(false);
 
     const [pageSize, setPageSize] = useState('5');
@@ -28,7 +33,7 @@ export default function ChooseSyncField() {
         plural: 'variants',
     };
 
-    const [variantsPage, setVariantsPage] = useState({ data: [], page_number: 0, total_pages: 0 });
+    const [variantsPage, setVariantsPage] = useState({ data: [], page_number: 0, total_pages: 0, total_entries: 0 });
 
     const { selectedResources, allResourcesSelected, handleSelectionChange } =
         useIndexResourceState(variantsPage.data);
@@ -40,6 +45,7 @@ export default function ChooseSyncField() {
         get("/stores/" + storeHost(store.url) + "/duplicate_sync_fields?sync_property=" + value + "&page_size=" + pageSize + "&page=" + page)
             .then(variants_page => {
                 setChecking(false)
+                setCheckedOnce(true)
                 setVariantsPage(variants_page)
             });
     }
@@ -52,8 +58,19 @@ export default function ChooseSyncField() {
         if (open) checkForDuplicates(1)
     }, [pageSize]);
 
-    const syncPropertyMarkup = (<strong>{value == 'sku' ? 'SKU' : 'barcode'}</strong>)
+    useEffect(() => {
+        setCheckedOnce(false)
+        setOpen(false)
+    }, [value]);
 
+    const continueToNextStep = () => {
+        let syncProperty = value == 'sku' ? 'SKU' : 'barcode'
+        if (variantsPage.total_entries == 0 || window.confirm("You still have duplicated " + syncProperty + 's in your store. Variants with these ' + syncProperty + 's will have their inventory levels synced within the store. Are you sure you would like to proceed?')) {
+            navigate('/' + storeHost(store.url) + '/onboarding/location-connections')
+        }
+    }
+
+    const syncPropertyMarkup = (<strong>{value == 'sku' ? 'SKU' : 'barcode'}</strong>)
 
     const rowMarkup = variantsPage.data.map(
         ({ id, product, title, sku, barcode }: any, index) => (
@@ -93,6 +110,20 @@ export default function ChooseSyncField() {
         }
     ];
 
+    const emptyStateMarkup = (
+        <AlphaStack gap="4">
+            <Text as="p" alignment='center'>
+                <img src={partyPopper} className='celebrate-no-duplicates' />
+            </Text>
+            <Text variant="headingLg" as="h4" alignment='center'>
+                No duplicated {syncPropertyMarkup}s found
+            </Text>
+            <Text as="p" alignment='center' color="subdued">
+                None of the variants within your store will sync with eachother.
+            </Text>
+        </AlphaStack>
+    );
+
     return (
         <AlphaStack gap="4">
             <Text variant="heading2xl" as="h3">
@@ -125,19 +156,27 @@ export default function ChooseSyncField() {
                 onChange={handleChange}
             />
 
-            {checking ? (
-                <ButtonGroup>
-                    <Button primary disabled>
+            <ButtonGroup>
+                {checking ? (
+                    <Button
+                        disabled>
                         Checking for duplicated {value == 'sku' ? 'SKU' : 'barcode'}s within your store...
                     </Button>
-                </ButtonGroup>
-            ) : (
-                <ButtonGroup>
-                    <Button primary onClick={() => checkForDuplicates(1)}>
+                ) : (
+                    <Button primary={!checkedOnce} onClick={() => checkForDuplicates(1)}>
                         Check for duplicated {value == 'sku' ? 'SKU' : 'barcode'}s within your store
                     </Button>
-                </ButtonGroup>
-            )}
+                )}
+                {checkedOnce ? (
+                    <Button primary onClick={() => continueToNextStep()}>
+                        Continue to next step
+                    </Button>
+                ) : (
+                    <Button disabled>
+                        Continue to next step
+                    </Button>
+                )}
+            </ButtonGroup>
 
             <Divider borderStyle="base" />
 
@@ -148,6 +187,11 @@ export default function ChooseSyncField() {
                 expandOnPrint
             >
                 <AlphaStack gap="4">
+                    {store.products_installing && !dismissedMessage ? (
+                        <Banner title="Product download still in progress" onDismiss={() => { setDismissedMessage(true) }}>
+                            <p>Synkro is still downloading a copy of your product catalogue, so this list of dupilicated {value == 'sku' ? 'SKU' : 'barcode'}s may not be complete. Perhaps you would like to wait a few more minutes to </p>
+                        </Banner>
+                    ) : null}
                     <Columns gap="4" columns={2}>
                         <Select
                             label=""
@@ -184,6 +228,7 @@ export default function ChooseSyncField() {
                                 { title: 'Barcode' },
                             ]}
                             promotedBulkActions={promotedBulkActions}
+                            emptyState={emptyStateMarkup}
                         >
                             {rowMarkup}
                         </IndexTable>
