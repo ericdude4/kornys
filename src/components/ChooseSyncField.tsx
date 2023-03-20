@@ -1,7 +1,7 @@
 import {
-    IndexTable, LegacyCard, useIndexResourceState, Button, Text, Divider, AlphaStack, Collapsible, ButtonGroup, RadioButton, Pagination, Columns
+    IndexTable, LegacyCard, useIndexResourceState, Button, Text, Divider, AlphaStack, Collapsible, ButtonGroup, RadioButton, Pagination, Columns, Select
 } from '@shopify/polaris';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get } from '../fetch';
 import { storeHost, truncate } from '../utils';
@@ -21,6 +21,8 @@ export default function ChooseSyncField() {
 
     const [open, setOpen] = useState(false);
 
+    const [pageSize, setPageSize] = useState('5');
+
     const resourceName = {
         singular: 'variant',
         plural: 'variants',
@@ -35,12 +37,20 @@ export default function ChooseSyncField() {
         setChecking(true)
         setOpen(true)
 
-        get("/stores/" + storeHost(store.url) + "/duplicate_sync_fields?sync_property=" + value + "&page=" + page)
+        get("/stores/" + storeHost(store.url) + "/duplicate_sync_fields?sync_property=" + value + "&page_size=" + pageSize + "&page=" + page)
             .then(variants_page => {
                 setChecking(false)
                 setVariantsPage(variants_page)
             });
     }
+
+    const handlePageSizeChange = useCallback((value: string) => {
+        setPageSize(value)
+    }, []);
+
+    useEffect(() => {
+        if (open) checkForDuplicates(1)
+    }, [pageSize]);
 
     const syncPropertyMarkup = (<strong>{value == 'sku' ? 'SKU' : 'barcode'}</strong>)
 
@@ -122,14 +132,29 @@ export default function ChooseSyncField() {
                     </Button>
                 </ButtonGroup>
             ) : (
-                <Columns gap="4" columns={['twoThirds', 'oneThird']}>
-                    <ButtonGroup>
-                        <Button primary onClick={() => checkForDuplicates(1)}>
-                            Check for duplicated {value == 'sku' ? 'SKU' : 'barcode'}s within your store
-                        </Button>
-                    </ButtonGroup>
+                <ButtonGroup>
+                    <Button primary onClick={() => checkForDuplicates(1)}>
+                        Check for duplicated {value == 'sku' ? 'SKU' : 'barcode'}s within your store
+                    </Button>
+                </ButtonGroup>
+            )}
 
-                    {variantsPage.data.length > 0 ? (
+            <Divider borderStyle="base" />
+
+            <Collapsible
+                open={open}
+                id="basic-collapsible"
+                transition={{ duration: '100ms', timingFunction: 'ease-in-out' }}
+                expandOnPrint
+            >
+                <AlphaStack gap="4">
+                    <Columns gap="4" columns={2}>
+                        <Select
+                            label=""
+                            options={[{ label: '5 per page', value: '5' }, { label: '25 per page', value: '25' }]}
+                            onChange={handlePageSizeChange}
+                            value={pageSize}
+                        />
                         <div id='duplicate-sku-pagination'>
                             <Pagination
                                 label={variantsPage.page_number + " of " + variantsPage.total_pages}
@@ -143,37 +168,27 @@ export default function ChooseSyncField() {
                                 }}
                             />
                         </div>
-                    ) : null}
-                </Columns>
-            )}
-
-            <Divider borderStyle="base" />
-
-            <Collapsible
-                open={open}
-                id="basic-collapsible"
-                transition={{ duration: '100ms', timingFunction: 'ease-in-out' }}
-                expandOnPrint
-            >
-                <LegacyCard>
-                    <IndexTable
-                        resourceName={resourceName}
-                        itemCount={variantsPage.data.length}
-                        selectedItemsCount={
-                            allResourcesSelected ? 'All' : selectedResources.length
-                        }
-                        onSelectionChange={handleSelectionChange}
-                        headings={[
-                            { title: 'Product' },
-                            { title: 'Variant' },
-                            { title: 'SKU' },
-                            { title: 'Barcode' },
-                        ]}
-                        promotedBulkActions={promotedBulkActions}
-                    >
-                        {rowMarkup}
-                    </IndexTable>
-                </LegacyCard>
+                    </Columns>
+                    <LegacyCard>
+                        <IndexTable
+                            resourceName={resourceName}
+                            itemCount={variantsPage.data.length}
+                            selectedItemsCount={
+                                allResourcesSelected ? 'All' : selectedResources.length
+                            }
+                            onSelectionChange={handleSelectionChange}
+                            headings={[
+                                { title: 'Product' },
+                                { title: 'Variant' },
+                                { title: 'SKU' },
+                                { title: 'Barcode' },
+                            ]}
+                            promotedBulkActions={promotedBulkActions}
+                        >
+                            {rowMarkup}
+                        </IndexTable>
+                    </LegacyCard>
+                </AlphaStack>
             </Collapsible>
 
         </AlphaStack >
