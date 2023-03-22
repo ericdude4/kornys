@@ -69,6 +69,10 @@ export default function ConfigureLocationConnections() {
         [],
     );
 
+    const [biDirectional, setBiDirectional] = useState(true);
+
+    const handleBiDirectionalChange = useCallback((value: boolean) => { setBiDirectional(value) }, [],);
+
     let locationConnectionBreakdowns: any[] = []
 
     Object.keys(store.user.location_connections).map((storeUrl, index) => {
@@ -206,8 +210,8 @@ export default function ConfigureLocationConnections() {
                 </Columns>
                 <Checkbox
                     label="In both directions"
-                    checked={false}
-                    onChange={console.log}
+                    checked={biDirectional}
+                    onChange={handleBiDirectionalChange}
                 />
                 <ButtonGroup>
                     <Button primary>Save location connection</Button>
