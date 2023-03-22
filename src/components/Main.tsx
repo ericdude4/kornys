@@ -10,7 +10,7 @@ import Onboarding from "../routes/Onboarding";
 import { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
-import ConfigureLocationConnections from "./ConfigureLocationConnections";
+import ConfigureLocationConnections, { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
 
 function Main() {
   const router = createBrowserRouter([
@@ -40,7 +40,8 @@ function Main() {
             },
             {
               path: "location-connections",
-              element: <ConfigureLocationConnections />
+              element: <ConfigureLocationConnections />,
+              loader: locationConnectionsLoader
             },
           ]
         },
