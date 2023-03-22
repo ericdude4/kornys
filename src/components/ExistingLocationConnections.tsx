@@ -1,5 +1,8 @@
 import { Text, Divider, AlphaStack, Icon } from '@shopify/polaris';
-import { LocationsMinor, ArrowRightMinor, InventoryMajor, ConnectMinor } from '@shopify/polaris-icons';
+import { LocationsMinor, ArrowRightMinor, InventoryMajor, DeleteMinor } from '@shopify/polaris-icons';
+import { useState } from 'react';
+import { post } from '../fetch';
+import { buildLocationConnectionsBreadowns } from '../utils';
 
 type ExistingLocationConnectionArgs = {
     store: any,
@@ -7,44 +10,19 @@ type ExistingLocationConnectionArgs = {
 }
 
 export default function ExistingLocationConnections({ store, locations }: ExistingLocationConnectionArgs) {
-    const allStores = [{ name: store.name, url: store.url }].concat(store.connected_stores)
+    const [storeLocationConnections, setStoreLocationConnections] = useState(store.user.location_connections)
 
-    let locationConnectionBreakdowns: any[] = []
+    let locationConnectionBreakdowns: any[] = buildLocationConnectionsBreadowns(store, storeLocationConnections, locations)
 
-    Object.keys(store.user.location_connections).map((storeUrl: any, index) => {
-        let storeLocationConnections = store.user.location_connections[storeUrl]
-        let connections: any[] = []
+    const deleteLocationConnection = async (topStore: any, topLocation: any, connectedStore: any) => {
+        console.log(store.user.location_connections[topStore.url][topLocation.id])
+        delete store.user.location_connections[topStore.url][topLocation.id][connectedStore.url]
 
-        Object.keys(store.user.location_connections[storeUrl]).map((locationId, index) => {
-            let thisLocation: any = locations[storeUrl].find((location: any) => location.id == locationId)
-            let otherStoreConnections: any[] = []
-            Object.keys(storeLocationConnections[locationId])
-                .map((otherStoreUrl: any, index) => {
-                    let otherStoreConnectedToLocationID = storeLocationConnections[locationId][otherStoreUrl]
-                    if (otherStoreConnectedToLocationID != '') {
-                        otherStoreConnections.push({
-                            store: allStores.find((store: any) => store.url == otherStoreUrl),
-                            location: locations[otherStoreUrl].find((location: any) => location.id == otherStoreConnectedToLocationID)
-                        })
-                    }
-                })
-            if (otherStoreConnections.length > 0) {
-                connections.push({
-                    location: thisLocation,
-                    otherStoreConnections: otherStoreConnections
-                })
-            }
-        })
-
-        if (connections.length > 0) {
-            locationConnectionBreakdowns.push({
-                store: allStores.find((store: any) => store.url == storeUrl),
-                connections: connections
+        await post("/user", { location_connections: store.user.location_connections })
+            .then((user) => {
+                setStoreLocationConnections(user.location_connections)
             })
-        }
-    })
-
-    locationConnectionBreakdowns.sort((lCB: any) => lCB.store.url == store.url ? -1 : 1)
+    }
 
     const currentLocationConnectionsMarkup = (
         <>
@@ -52,10 +30,11 @@ export default function ExistingLocationConnections({ store, locations }: Existi
                 locationConnectionBreakdowns.map(({ store, connections }: any, index: number) => {
                     let topStore = store
                     const items = connections.map(({ location, otherStoreConnections }: any) => {
+                        let topLocation = location
                         return (
-                            <div className='location-connection-grid' key={"location-connections-" + topStore.url + "-location-" + location.id}>
+                            <div className='location-connection-grid' key={"location-connections-" + topStore.url + "-location-" + topLocation.id}>
                                 <div><Icon source={LocationsMinor} color="base" /></div>
-                                <Text variant='bodyMd' as='h6'>{location.name}</Text>
+                                <Text variant='bodyMd' as='h6'>{topLocation.name}</Text>
                                 <div><Icon source={ArrowRightMinor} color="base" /></div>
                                 <AlphaStack gap="4">
                                     <>
@@ -67,6 +46,9 @@ export default function ExistingLocationConnections({ store, locations }: Existi
                                                         <Text variant='bodyMd' as='h6'><strong>{store.name}</strong></Text>
                                                         <Icon source={LocationsMinor} color="base" />
                                                         <Text variant='bodyMd' as='h6'>{location.name}</Text>
+                                                        <div className='delete-location-connection' onClick={() => { deleteLocationConnection(topStore, topLocation, store) }}>
+                                                            <Icon source={DeleteMinor} color="critical" />
+                                                        </div>
                                                     </div>
                                                 )
                                             })
