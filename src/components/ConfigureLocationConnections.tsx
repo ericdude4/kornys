@@ -1,5 +1,5 @@
 import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select } from '@shopify/polaris';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get, post } from '../fetch';
 import ExistingLocationConnections from './ExistingLocationConnections';
@@ -41,24 +41,64 @@ export default function ConfigureLocationConnections() {
         [],
     );
 
-    const otherStoreOptions = allStores
-        .filter((store: any) => store.url != selectedFromStore)
-        .map((store: any) => {
-            return { label: store.name, value: store.url }
-        })
+    let defaultOtherStoreOption: any[] = [{ label: "Already syncs to all stores", value: "" }]
 
-    const [selectedOtherStore, setSelectedOtherStore] = useState(otherStoreOptions[0].value);
+    const calculateOtherStoreOptions = () => {
+        let otherStoreOptions: any[] = allStores
+            .filter((store: any) => {
+                if (storeLocationConnections[selectedFromStore] && storeLocationConnections[selectedFromStore][selectedFromStoreLocation] && storeLocationConnections[selectedFromStore][selectedFromStoreLocation][store.url]) {
+                    return false
+                } else {
+                    return store.url != selectedFromStore
+                }
+            })
+            .map((store: any) => {
+                return { label: store.name, value: store.url }
+            })
+        if (otherStoreOptions.length > 0) return otherStoreOptions
+        else return defaultOtherStoreOption
+    }
+
+    const [otherStoreOptions, setOtherStoreOptions] = useState(defaultOtherStoreOption)
+
+    const [selectedOtherStore, setSelectedOtherStore] = useState("");
 
     const handleSelectOtherStore = useCallback(
         (value: string) => setSelectedOtherStore(value),
         [],
     );
 
-    const otherStoreLocationOptions = locations[selectedOtherStore].map((location: any) => {
-        return { label: location.name, value: location.id.toString() }
-    })
+    // TODO: deleting a connection doesn't update the form
 
-    const [selectedOtherStoreLocation, setSelectedOtherStoreLocation] = useState(otherStoreLocationOptions[0].value.toString());
+    useEffect(() => {
+        // this fires when the selected from store changes
+        let otherStoreOptions = calculateOtherStoreOptions()
+        // updates the list of available other stores
+        setOtherStoreOptions(otherStoreOptions)
+        // updates the preselected other store
+        setSelectedOtherStore(otherStoreOptions[0].value)
+    }, [selectedFromStore, selectedFromStoreLocation])
+
+    const [otherStoreLocationOptions, setOtherStoreLocationOptions] = useState([])
+
+    const calculateOtherStoreLocationOptions = () => {
+        if (selectedOtherStore) {
+            return locations[selectedOtherStore].map((location: any) => {
+                return { label: location.name, value: location.id.toString() }
+            })
+        } else {
+            return []
+        }
+    }
+
+    const [selectedOtherStoreLocation, setSelectedOtherStoreLocation] = useState("");
+
+    useEffect(() => {
+        // This fires when the selected other store changes
+        // updates the list of other store location options
+        setOtherStoreLocationOptions(calculateOtherStoreLocationOptions())
+    }, [selectedOtherStore])
+
 
     const handleSelectOtherStoreLocation = useCallback(
         (value: string) => {
@@ -129,13 +169,16 @@ export default function ConfigureLocationConnections() {
                         options={otherStoreOptions}
                         value={selectedOtherStore}
                         onChange={handleSelectOtherStore}
+                        disabled={selectedOtherStore == ""}
                     />
-                    <Select
-                        label={<strong>at location</strong>}
-                        options={otherStoreLocationOptions}
-                        value={selectedOtherStoreLocation}
-                        onChange={handleSelectOtherStoreLocation}
-                    />
+                    {selectedOtherStore != "" ? (
+                        <Select
+                            label={<strong>at location</strong>}
+                            options={otherStoreLocationOptions}
+                            value={selectedOtherStoreLocation}
+                            onChange={handleSelectOtherStoreLocation}
+                        />
+                    ) : null}
                 </Columns>
                 <Checkbox
                     label="In both directions"
