@@ -1,7 +1,7 @@
 import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select } from '@shopify/polaris';
 import { useState, useCallback } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
-import { get } from '../fetch';
+import { get, post } from '../fetch';
 import ExistingLocationConnections from './ExistingLocationConnections';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -12,6 +12,8 @@ export default function ConfigureLocationConnections() {
     const store: any = useRouteLoaderData("root");
     const locations: any = useLoaderData();
     const navigate = useNavigate();
+
+    const [storeLocationConnections, setStoreLocationConnections] = useState(store.user.location_connections)
 
     const allStores = [{ name: store.name, url: store.url }].concat(store.connected_stores)
 
@@ -69,6 +71,30 @@ export default function ConfigureLocationConnections() {
 
     const handleBiDirectionalChange = useCallback((value: boolean) => { setBiDirectional(value) }, [],);
 
+    const saveLocationConnection = async () => {
+        let newLocationConnectionDest: any = {}
+        newLocationConnectionDest[selectedOtherStore] = selectedOtherStoreLocation
+        let newLocationConnectionFromTopLocation: any = {}
+        newLocationConnectionFromTopLocation[selectedFromStoreLocation] = newLocationConnectionDest
+        let newLocationConnection: any = {}
+        newLocationConnection[selectedFromStore] = newLocationConnectionFromTopLocation
+
+        if (typeof storeLocationConnections[selectedFromStore] == 'undefined') {
+            storeLocationConnections[selectedFromStore] = newLocationConnection[selectedFromStore]
+        } else {
+            if (typeof storeLocationConnections[selectedFromStore][selectedFromStoreLocation] == 'undefined') {
+                storeLocationConnections[selectedFromStore][selectedFromStoreLocation] = newLocationConnection[selectedFromStore][selectedFromStoreLocation]
+            } else {
+                storeLocationConnections[selectedFromStore][selectedFromStoreLocation][selectedOtherStore] = selectedOtherStoreLocation
+            }
+        }
+
+        await post("/user", { location_connections: storeLocationConnections })
+            .then((user) => {
+                setStoreLocationConnections(user.location_connections)
+            })
+    }
+
     return (
         <AlphaStack gap="4">
             <Text variant="heading2xl" as="h3">
@@ -79,7 +105,7 @@ export default function ConfigureLocationConnections() {
                 Synkro will use this to determine how the different inventory locations between your stores should be synced.
             </Text>
 
-            <ExistingLocationConnections store={store} locations={locations} />
+            <ExistingLocationConnections store={store} locations={locations} storeLocationConnections={storeLocationConnections} setStoreLocationConnections={setStoreLocationConnections} />
 
             <AlphaStack gap="4">
                 <Text variant="headingXl" as="h4">
@@ -117,7 +143,7 @@ export default function ConfigureLocationConnections() {
                     onChange={handleBiDirectionalChange}
                 />
                 <ButtonGroup>
-                    <Button primary>Save location connection</Button>
+                    <Button primary onClick={() => saveLocationConnection()}>Save location connection</Button>
                 </ButtonGroup>
             </AlphaStack >
         </AlphaStack >

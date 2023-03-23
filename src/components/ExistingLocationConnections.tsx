@@ -6,12 +6,12 @@ import { buildLocationConnectionsBreadowns } from '../utils';
 
 type ExistingLocationConnectionArgs = {
     store: any,
+    storeLocationConnections: any,
+    setStoreLocationConnections: any,
     locations: any[]
 }
 
-export default function ExistingLocationConnections({ store, locations }: ExistingLocationConnectionArgs) {
-    const [storeLocationConnections, setStoreLocationConnections] = useState(store.user.location_connections)
-
+export default function ExistingLocationConnections({ store, storeLocationConnections, setStoreLocationConnections, locations }: ExistingLocationConnectionArgs) {
     let locationConnectionBreakdowns: any[] = buildLocationConnectionsBreadowns(store, storeLocationConnections, locations)
 
     const deleteLocationConnection = async (topStore: any, topLocation: any, connectedStore: any) => {
