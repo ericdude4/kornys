@@ -1,5 +1,5 @@
 import { Text, Divider, AlphaStack, Icon } from '@shopify/polaris';
-import { LocationsMinor, ArrowRightMinor, InventoryMajor, DeleteMinor } from '@shopify/polaris-icons';
+import { LocationsMinor, ArrowRightMinor, StoreMinor, DeleteMinor } from '@shopify/polaris-icons';
 import { useState } from 'react';
 import { post } from '../fetch';
 import { buildLocationConnectionsBreadowns } from '../utils';
@@ -42,7 +42,7 @@ export default function ExistingLocationConnections({ store, storeLocationConnec
                                             otherStoreConnections.map(({ location, store }: any) => {
                                                 return (
                                                     <div className='connected-stores-grid' key={"location-connections-" + topStore.url + "-location-" + location.id + '-' + store.url}>
-                                                        <Icon source={InventoryMajor} color="base" />
+                                                        <Icon source={StoreMinor} color="base" />
                                                         <Text variant='bodyMd' as='h6'><strong>{store.name}</strong></Text>
                                                         <Icon source={LocationsMinor} color="base" />
                                                         <Text variant='bodyMd' as='h6'>{location.name}</Text>
