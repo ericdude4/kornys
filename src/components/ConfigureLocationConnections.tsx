@@ -68,8 +68,6 @@ export default function ConfigureLocationConnections() {
         [],
     );
 
-    // TODO: deleting a connection doesn't update the form
-
     useEffect(() => {
         // this fires when the selected from store changes
         let otherStoreOptions = calculateOtherStoreOptions()
@@ -77,7 +75,7 @@ export default function ConfigureLocationConnections() {
         setOtherStoreOptions(otherStoreOptions)
         // updates the preselected other store
         setSelectedOtherStore(otherStoreOptions[0].value)
-    }, [selectedFromStore, selectedFromStoreLocation])
+    }, [selectedFromStore, selectedFromStoreLocation, storeLocationConnections])
 
     const [otherStoreLocationOptions, setOtherStoreLocationOptions] = useState([])
 
