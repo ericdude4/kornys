@@ -112,6 +112,8 @@ export default function ConfigureLocationConnections() {
 
     const handleBiDirectionalChange = useCallback((value: boolean) => { setBiDirectional(value) }, [],);
 
+    const [createLocationConnectionError, setCreateLocationConnectionError] = useState(<></>);
+
     const saveLocationConnection = async () => {
         let newLocationConnectionDest: any = {}
         newLocationConnectionDest[selectedOtherStore] = selectedOtherStoreLocation
@@ -126,14 +128,40 @@ export default function ConfigureLocationConnections() {
             if (typeof storeLocationConnections[selectedFromStore][selectedFromStoreLocation] == 'undefined') {
                 storeLocationConnections[selectedFromStore][selectedFromStoreLocation] = newLocationConnection[selectedFromStore][selectedFromStoreLocation]
             } else {
-                storeLocationConnections[selectedFromStore][selectedFromStoreLocation][selectedOtherStore] = selectedOtherStoreLocation
+                // check to see if there is another location in the "from" store which is already syncing to the same destination store + location
+                let existingLocationConnectionFromStoreToDestinationStoreAndLocation =
+                    Object.keys(storeLocationConnections[selectedFromStore]).find((fromStoreLocation: any) => {
+                        return (
+                            // there is already a connection from the selected "from" store...
+                            typeof storeLocationConnections[selectedFromStore][fromStoreLocation] != 'undefined'
+                            // ... that is syncing to the "other" store at the same location
+                            && storeLocationConnections[selectedFromStore][fromStoreLocation][selectedOtherStore] == selectedOtherStoreLocation
+                        )
+                    })
+
+                if (existingLocationConnectionFromStoreToDestinationStoreAndLocation) {
+                    let fromStore: any = fromStoreOptions.find((store: any) => store.value == selectedFromStore)
+                    let fromStoreLocation: any = fromStoreLocationOptions.find((location: any) => location.value == existingLocationConnectionFromStoreToDestinationStoreAndLocation)
+
+                    let toStore: any = otherStoreOptions.find((store: any) => store.value == selectedOtherStore)
+                    let toStoreLocation: any = otherStoreLocationOptions.find((location: any) => location.value == selectedOtherStoreLocation)
+
+                    setCreateLocationConnectionError(
+                        <Text as="p" color="critical">
+                            <strong>{fromStoreLocation.label}</strong> location in <strong>{fromStore.label}</strong> is already syncing with <strong>{toStore.label}</strong> at location <strong>{toStoreLocation.label}</strong>.
+                            You cannot sync multiple locations from one store to a single location in another store.
+                        </Text>
+                    )
+                } else {
+                    storeLocationConnections[selectedFromStore][selectedFromStoreLocation][selectedOtherStore] = selectedOtherStoreLocation
+
+                    await post("/user", { location_connections: storeLocationConnections })
+                        .then((user) => {
+                            setStoreLocationConnections(user.location_connections)
+                        })
+                }
             }
         }
-
-        await post("/user", { location_connections: storeLocationConnections })
-            .then((user) => {
-                setStoreLocationConnections(user.location_connections)
-            })
     }
 
     return (
@@ -186,6 +214,7 @@ export default function ConfigureLocationConnections() {
                     checked={biDirectional}
                     onChange={handleBiDirectionalChange}
                 />
+                {createLocationConnectionError}
                 <ButtonGroup>
                     <Button primary onClick={() => saveLocationConnection()}>Save location connection</Button>
                 </ButtonGroup>
