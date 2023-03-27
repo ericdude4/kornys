@@ -94,7 +94,10 @@ export default function ConfigureLocationConnections() {
     useEffect(() => {
         // This fires when the selected other store changes
         // updates the list of other store location options
-        setOtherStoreLocationOptions(calculateOtherStoreLocationOptions())
+        let otherStoreLocationOptions = calculateOtherStoreLocationOptions();
+        setOtherStoreLocationOptions(otherStoreLocationOptions)
+        // updates the preselected other store location
+        if (otherStoreLocationOptions.length > 0) setSelectedOtherStoreLocation(otherStoreLocationOptions[0].value)
     }, [selectedOtherStore])
 
 
