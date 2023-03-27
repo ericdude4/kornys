@@ -153,6 +153,7 @@ export default function ConfigureLocationConnections() {
                         </Text>
                     )
                 } else {
+                    setCreateLocationConnectionError(<></>)
                     storeLocationConnections[selectedFromStore][selectedFromStoreLocation][selectedOtherStore] = selectedOtherStoreLocation
 
                     await post("/user", { location_connections: storeLocationConnections })
