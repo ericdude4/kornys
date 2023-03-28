@@ -1,4 +1,4 @@
-import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select } from '@shopify/polaris';
+import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select, Toast } from '@shopify/polaris';
 import { useState, useCallback, useEffect } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get, post } from '../fetch';
@@ -44,7 +44,7 @@ export default function ConfigureLocationConnections() {
 
     let defaultOtherStoreOption: any[] = [{ label: "Already syncs to all stores", value: "" }]
 
-    const calculateOtherStoreOptions = () => {
+    const calculateOtherStoreOptions = (selectedFromStore: string, selectedFromStoreLocation: string) => {
         let otherStoreOptions: any[] = allStores
             .filter((store: any) => {
                 if (storeLocationConnections[selectedFromStore] && storeLocationConnections[selectedFromStore][selectedFromStoreLocation] && storeLocationConnections[selectedFromStore][selectedFromStoreLocation][store.url]) {
@@ -71,7 +71,7 @@ export default function ConfigureLocationConnections() {
 
     useEffect(() => {
         // this fires when the selected from store changes
-        let otherStoreOptions = calculateOtherStoreOptions()
+        let otherStoreOptions = calculateOtherStoreOptions(selectedFromStore, selectedFromStoreLocation)
         // updates the list of available other stores
         setOtherStoreOptions(otherStoreOptions)
         // updates the preselected other store
@@ -80,7 +80,7 @@ export default function ConfigureLocationConnections() {
 
     const [otherStoreLocationOptions, setOtherStoreLocationOptions] = useState([])
 
-    const calculateOtherStoreLocationOptions = () => {
+    const calculateOtherStoreLocationOptions = (selectedOtherStore: string) => {
         if (selectedOtherStore) {
             return locations[selectedOtherStore].map((location: any) => {
                 return { label: location.name, value: location.id.toString() }
@@ -95,7 +95,7 @@ export default function ConfigureLocationConnections() {
     useEffect(() => {
         // This fires when the selected other store changes
         // updates the list of other store location options
-        let otherStoreLocationOptions = calculateOtherStoreLocationOptions();
+        let otherStoreLocationOptions = calculateOtherStoreLocationOptions(selectedOtherStore);
         setOtherStoreLocationOptions(otherStoreLocationOptions)
         // updates the preselected other store location
         if (otherStoreLocationOptions.length > 0) setSelectedOtherStoreLocation(otherStoreLocationOptions[0].value)
@@ -135,12 +135,33 @@ export default function ConfigureLocationConnections() {
             // since addLocationConnectionToLocationConnections performs an in-place mutation on storeLocationConnections, it's already been set
             setCreateLocationConnectionError(<></>)
 
+            if (biDirectional) {
+                // first check if the opposite version of the location connection is valid.
+                let tempOtherStoreOptions = calculateOtherStoreOptions(selectedOtherStore, selectedOtherStoreLocation)
+                // make sure opposite from store is valid other store option
+                if (tempOtherStoreOptions.find((otherStoreOption: any) => otherStoreOption.value == selectedFromStore)) {
+                    // this means that the opposite location connection is also valid
+                    newLocationConnections = addLocationConnectionToLocationConnections(storeLocationConnections, selectedOtherStore, selectedOtherStoreLocation, selectedFromStore, selectedFromStoreLocation)
+                } else {
+                    console.log('opposite location connection is invalid')
+                }
+            }
+
             await post("/user", { location_connections: storeLocationConnections })
                 .then((user) => {
                     setStoreLocationConnections(user.location_connections)
+                    toggleToastActive()
                 })
         }
     }
+
+    const [toastActive, setToastActive] = useState(false);
+
+    const toggleToastActive = useCallback(() => setToastActive((active) => !active), []);
+
+    const toastMarkup = toastActive ? (
+        <Toast content="Location connection created" onDismiss={toggleToastActive} />
+    ) : null;
 
     return (
         <AlphaStack gap="4">
@@ -160,7 +181,7 @@ export default function ConfigureLocationConnections() {
                 </Text>
                 <Columns gap="4" columns={4}>
                     <Select
-                        label={<strong>Inventory in store</strong>}
+                        label={<strong>Inventory changes in store</strong>}
                         options={fromStoreOptions}
                         value={selectedFromStore}
                         onChange={handleSelectFromStore}
@@ -194,7 +215,8 @@ export default function ConfigureLocationConnections() {
                 />
                 {createLocationConnectionError}
                 <ButtonGroup>
-                    <Button primary onClick={() => saveLocationConnection()}>Save location connection</Button>
+                    <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Save location connection</Button>
+                    {toastMarkup}
                 </ButtonGroup>
             </AlphaStack >
         </AlphaStack >
