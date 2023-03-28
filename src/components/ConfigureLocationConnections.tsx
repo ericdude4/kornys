@@ -2,6 +2,7 @@ import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select } from
 import { useState, useCallback, useEffect } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get, post } from '../fetch';
+import { addLocationConnectionToLocationConnections } from '../utils';
 import ExistingLocationConnections from './ExistingLocationConnections';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -115,53 +116,29 @@ export default function ConfigureLocationConnections() {
     const [createLocationConnectionError, setCreateLocationConnectionError] = useState(<></>);
 
     const saveLocationConnection = async () => {
-        let newLocationConnectionDest: any = {}
-        newLocationConnectionDest[selectedOtherStore] = selectedOtherStoreLocation
-        let newLocationConnectionFromTopLocation: any = {}
-        newLocationConnectionFromTopLocation[selectedFromStoreLocation] = newLocationConnectionDest
-        let newLocationConnection: any = {}
-        newLocationConnection[selectedFromStore] = newLocationConnectionFromTopLocation
+        let newLocationConnections = addLocationConnectionToLocationConnections(storeLocationConnections, selectedFromStore, selectedFromStoreLocation, selectedOtherStore, selectedOtherStoreLocation)
 
-        if (typeof storeLocationConnections[selectedFromStore] == 'undefined') {
-            storeLocationConnections[selectedFromStore] = newLocationConnection[selectedFromStore]
+        if (newLocationConnections.error == "2:1 error") {
+            let fromStore: any = fromStoreOptions.find((store: any) => store.value == selectedFromStore)
+            let fromStoreLocation: any = fromStoreLocationOptions.find((location: any) => location.value == newLocationConnections.errorData)
+
+            let toStore: any = otherStoreOptions.find((store: any) => store.value == selectedOtherStore)
+            let toStoreLocation: any = otherStoreLocationOptions.find((location: any) => location.value == selectedOtherStoreLocation)
+
+            setCreateLocationConnectionError(
+                <Text as="p" color="critical">
+                    <strong>{fromStoreLocation.label}</strong> location in <strong>{fromStore.label}</strong> is already syncing with <strong>{toStore.label}</strong> at location <strong>{toStoreLocation.label}</strong>.
+                    You cannot sync multiple locations from one store to a single location in another store.
+                </Text>
+            )
         } else {
-            if (typeof storeLocationConnections[selectedFromStore][selectedFromStoreLocation] == 'undefined') {
-                storeLocationConnections[selectedFromStore][selectedFromStoreLocation] = newLocationConnection[selectedFromStore][selectedFromStoreLocation]
-            } else {
-                // check to see if there is another location in the "from" store which is already syncing to the same destination store + location
-                let existingLocationConnectionFromStoreToDestinationStoreAndLocation =
-                    Object.keys(storeLocationConnections[selectedFromStore]).find((fromStoreLocation: any) => {
-                        return (
-                            // there is already a connection from the selected "from" store...
-                            typeof storeLocationConnections[selectedFromStore][fromStoreLocation] != 'undefined'
-                            // ... that is syncing to the "other" store at the same location
-                            && storeLocationConnections[selectedFromStore][fromStoreLocation][selectedOtherStore] == selectedOtherStoreLocation
-                        )
-                    })
+            // since addLocationConnectionToLocationConnections performs an in-place mutation on storeLocationConnections, it's already been set
+            setCreateLocationConnectionError(<></>)
 
-                if (existingLocationConnectionFromStoreToDestinationStoreAndLocation) {
-                    let fromStore: any = fromStoreOptions.find((store: any) => store.value == selectedFromStore)
-                    let fromStoreLocation: any = fromStoreLocationOptions.find((location: any) => location.value == existingLocationConnectionFromStoreToDestinationStoreAndLocation)
-
-                    let toStore: any = otherStoreOptions.find((store: any) => store.value == selectedOtherStore)
-                    let toStoreLocation: any = otherStoreLocationOptions.find((location: any) => location.value == selectedOtherStoreLocation)
-
-                    setCreateLocationConnectionError(
-                        <Text as="p" color="critical">
-                            <strong>{fromStoreLocation.label}</strong> location in <strong>{fromStore.label}</strong> is already syncing with <strong>{toStore.label}</strong> at location <strong>{toStoreLocation.label}</strong>.
-                            You cannot sync multiple locations from one store to a single location in another store.
-                        </Text>
-                    )
-                } else {
-                    setCreateLocationConnectionError(<></>)
-                    storeLocationConnections[selectedFromStore][selectedFromStoreLocation][selectedOtherStore] = selectedOtherStoreLocation
-
-                    await post("/user", { location_connections: storeLocationConnections })
-                        .then((user) => {
-                            setStoreLocationConnections(user.location_connections)
-                        })
-                }
-            }
+            await post("/user", { location_connections: storeLocationConnections })
+                .then((user) => {
+                    setStoreLocationConnections(user.location_connections)
+                })
         }
     }
 

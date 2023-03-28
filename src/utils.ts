@@ -56,3 +56,39 @@ export function buildLocationConnectionsBreadowns(store: any, locationConnection
 
     return locationConnectionBreakdowns.sort((lCB: any) => lCB.store.url == store.url ? -1 : 1)
 }
+
+export function addLocationConnectionToLocationConnections(existingLocationConnections: any, fromStore: string, fromLocation: string, toStore: string, toLocation: string) {
+    let newLocationConnectionDest: any = {}
+        newLocationConnectionDest[toStore] = toLocation
+        let newLocationConnectionFromTopLocation: any = {}
+        newLocationConnectionFromTopLocation[fromLocation] = newLocationConnectionDest
+        let newLocationConnection: any = {}
+        newLocationConnection[fromStore] = newLocationConnectionFromTopLocation
+
+        if (typeof existingLocationConnections[fromStore] == 'undefined') {
+            existingLocationConnections[fromStore] = newLocationConnection[fromStore]
+        } else {
+            if (typeof existingLocationConnections[fromStore][fromLocation] == 'undefined') {
+                existingLocationConnections[fromStore][fromLocation] = newLocationConnection[fromStore][fromLocation]
+            } else {
+                // check to see if there is another location in the "from" store which is already syncing to the same destination store + location
+                let existingLocationConnectionFromStoreToDestinationStoreAndLocation =
+                    Object.keys(existingLocationConnections[fromStore]).find((fromStoreLocation: any) => {
+                        return (
+                            // there is already a connection from the selected "from" store...
+                            typeof existingLocationConnections[fromStore][fromStoreLocation] != 'undefined'
+                            // ... that is syncing to the "other" store at the same location
+                            && existingLocationConnections[fromStore][fromStoreLocation][toStore] == toLocation
+                        )
+                    })
+
+                if (existingLocationConnectionFromStoreToDestinationStoreAndLocation) {
+                    return {error: "2:1 error", errorData: existingLocationConnectionFromStoreToDestinationStoreAndLocation}
+                } else {
+                    existingLocationConnections[fromStore][fromLocation][toStore] = toLocation
+
+                    return existingLocationConnections
+                }
+            }
+        }
+}
