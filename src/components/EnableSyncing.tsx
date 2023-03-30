@@ -31,7 +31,8 @@ export default function EnableSyncing() {
                 checked={store.sync_products}
                 checkedIcon={<div className='sync-toggle-text-enabled'>Syncing</div>}
                 uncheckedIcon={<div className='sync-toggle-text-disabled'>Disabled</div>}
-                onColor="#4db4b7"
+                // translated var(--p-border-success) to hex
+                onColor="#00a47c"
                 handleDiameter={30}
                 width={130}
                 height={35} />
