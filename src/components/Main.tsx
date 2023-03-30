@@ -43,6 +43,11 @@ function Main() {
               element: <ConfigureLocationConnections />,
               loader: locationConnectionsLoader
             },
+            {
+              path: "enable-syncing",
+              element: <ConfigureLocationConnections />,
+              loader: locationConnectionsLoader
+            },
           ]
         },
         {

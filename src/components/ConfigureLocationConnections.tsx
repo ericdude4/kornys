@@ -2,7 +2,7 @@ import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select, Toast
 import { useState, useCallback, useEffect } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get, post } from '../fetch';
-import { addLocationConnectionToLocationConnections, buildLocationConnectionsBreadowns } from '../utils';
+import { addLocationConnectionToLocationConnections, buildLocationConnectionsBreadowns, storeHost } from '../utils';
 import ExistingLocationConnections from './ExistingLocationConnections';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -225,6 +225,9 @@ export default function ConfigureLocationConnections() {
                 <ButtonGroup>
                     <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Save location connection</Button>
                     {toastMarkup}
+                </ButtonGroup>
+                <ButtonGroup>
+                    <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/enable-syncing') }}>Continue to next step</Button>
                 </ButtonGroup>
             </AlphaStack >
         </AlphaStack >

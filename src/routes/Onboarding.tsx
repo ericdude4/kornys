@@ -29,6 +29,11 @@ export default function Onboarding() {
             path: 'location-connections',
             content: 'Location connections'
         },
+        {
+            id: 'enable-syncing',
+            path: 'enable-syncing',
+            content: 'Enable syncing'
+        },
     ];
 
     const [selected, setSelected] = useState(0);
