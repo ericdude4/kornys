@@ -2,7 +2,7 @@ import { Checkbox, Button, Text, AlphaStack, ButtonGroup, Columns, Select, Toast
 import { useState, useCallback, useEffect } from 'react';
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { get, post } from '../fetch';
-import { addLocationConnectionToLocationConnections } from '../utils';
+import { addLocationConnectionToLocationConnections, buildLocationConnectionsBreadowns } from '../utils';
 import ExistingLocationConnections from './ExistingLocationConnections';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -163,6 +163,8 @@ export default function ConfigureLocationConnections() {
         <Toast content="Location connection created" onDismiss={toggleToastActive} />
     ) : null;
 
+    const locationConnectionBreakdowns = buildLocationConnectionsBreadowns(store, storeLocationConnections, locations)
+
     return (
         <AlphaStack gap="4">
             <Text variant="heading2xl" as="h3">
@@ -170,8 +172,14 @@ export default function ConfigureLocationConnections() {
             </Text>
 
             <Text as="p">
-                Synkro will use this to determine how the different inventory locations between your stores should be synced.
+                Synkro will use this to determine how the different inventory locations in your stores should be synced.
             </Text>
+
+            {locationConnectionBreakdowns.length > 0 ? (
+                <Text variant="headingXl" as="h4">
+                    Current location connections
+                </Text>
+            ): null}
 
             <ExistingLocationConnections store={store} locations={locations} storeLocationConnections={storeLocationConnections} setStoreLocationConnections={setStoreLocationConnections} />
 
