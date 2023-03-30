@@ -11,7 +11,10 @@ export function initFetch(accessToken: String) {
     return;
 }
 
-const baseUrl = "http://localhost:4000/api"
+export const apiUrl = "http://localhost:4000"
+
+const baseUrl = apiUrl + "/api";
+
 export async function get(path: String) {
     return fetch(baseUrl + path, {
         method: "GET",
