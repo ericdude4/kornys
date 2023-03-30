@@ -1,13 +1,20 @@
 import { Text, AlphaStack } from '@shopify/polaris';
-import { LoaderFunctionArgs, useRouteLoaderData } from 'react-router-dom';
-import { get, post } from '../fetch';
-
-export async function loader({ params, request }: LoaderFunctionArgs) {
-    return get("/locations").then(locations => { return locations });
-}
+import { useRevalidator, useRouteLoaderData } from 'react-router-dom';
+import { post } from '../fetch';
+import Switch from "react-switch";
+import { storeHost } from '../utils';
 
 export default function EnableSyncing() {
     const store: any = useRouteLoaderData("root");
+    console.log(store)
+    let revalidator = useRevalidator();
+
+    const handleToggle = async () => {
+        await post("/stores/" + storeHost(store.url), { sync_products: !store.sync_products })
+            .then((_store) => {
+                revalidator.revalidate()
+            })
+    }
 
     return (
         <AlphaStack gap="4">
@@ -22,6 +29,16 @@ export default function EnableSyncing() {
             <Text as="p">
                 You have completed the Synkro setup process. Click the button below to enable syncing for {store.name}.
             </Text>
+
+            <Switch
+                onChange={handleToggle}
+                checked={store.sync_products}
+                checkedIcon={<div className='sync-toggle-text-enabled'>Syncing</div>}
+                uncheckedIcon={<div className='sync-toggle-text-disabled'>Disabled</div>}
+                onColor="#4db4b7"
+                handleDiameter={30}
+                width={130}
+                height={35} />
         </AlphaStack >
     );
 }
