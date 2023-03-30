@@ -11,6 +11,7 @@ import { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
 import ConfigureLocationConnections, { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
+import EnableSyncing from "./EnableSyncing";
 
 function Main() {
   const router = createBrowserRouter([
@@ -45,7 +46,7 @@ function Main() {
             },
             {
               path: "enable-syncing",
-              element: <ConfigureLocationConnections />,
+              element: <EnableSyncing />,
               loader: locationConnectionsLoader
             },
           ]
