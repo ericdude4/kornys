@@ -1,13 +1,13 @@
-import { Text, AlphaStack } from '@shopify/polaris';
-import { useRevalidator, useRouteLoaderData } from 'react-router-dom';
+import { Text, AlphaStack, Button, ButtonGroup } from '@shopify/polaris';
+import { useNavigate, useRevalidator, useRouteLoaderData } from 'react-router-dom';
 import { post } from '../fetch';
 import Switch from "react-switch";
 import { storeHost } from '../utils';
 
 export default function EnableSyncing() {
     const store: any = useRouteLoaderData("root");
-    console.log(store)
     let revalidator = useRevalidator();
+    const navigate = useNavigate();
 
     const handleToggle = async () => {
         await post("/stores/" + storeHost(store.url), { sync_products: !store.sync_products })
@@ -20,10 +20,6 @@ export default function EnableSyncing() {
         <AlphaStack gap="4">
             <Text variant="heading2xl" as="h3">
                 Enable syncing
-            </Text>
-
-            <Text variant="headingXl" as="h4">
-                Congratulations!
             </Text>
 
             <Text as="p">
@@ -39,6 +35,15 @@ export default function EnableSyncing() {
                 handleDiameter={30}
                 width={130}
                 height={35} />
+
+            {store.sync_products ? (
+                <>
+                    <div className='gap'></div>
+                    <ButtonGroup>
+                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/complete') }}>Continue to complete onboarding!</Button>
+                    </ButtonGroup>
+                </>
+            ) : null}
         </AlphaStack >
     );
 }
