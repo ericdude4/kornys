@@ -30,6 +30,11 @@ export default function Onboarding() {
             content: 'Location connections'
         },
         {
+            id: 'customize-syncing',
+            path: 'customize-syncing',
+            content: 'Customize syncing'
+        },
+        {
             id: 'enable-syncing',
             path: 'enable-syncing',
             content: 'Enable syncing'
