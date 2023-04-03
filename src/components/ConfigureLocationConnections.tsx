@@ -227,7 +227,7 @@ export default function ConfigureLocationConnections() {
                     {toastMarkup}
                 </ButtonGroup>
                 <ButtonGroup>
-                    <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/enable-syncing') }}>Continue to next step</Button>
+                    <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
                 </ButtonGroup>
             </AlphaStack >
         </AlphaStack >

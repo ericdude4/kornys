@@ -23,7 +23,10 @@ export default function EnableSyncing() {
             </Text>
 
             <Text as="p">
-                You have completed the Synkro setup process. Click the button below to enable syncing for {store.name}.
+                Once you enable syncing, Synkro will begin syncing changes as they occur based on your Synkro settings. Click the button below to enable syncing for {store.name}.
+                <br/>
+                <br/>
+                This switch serves as the "master toggle" to enable or disable syncing on this store.
             </Text>
 
             <Switch

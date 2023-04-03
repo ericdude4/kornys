@@ -1,9 +1,8 @@
-import { Text, AlphaStack, Button, ButtonGroup, ChoiceList, Checkbox } from '@shopify/polaris';
+import { Text, AlphaStack, Checkbox, Banner, ButtonGroup, Button } from '@shopify/polaris';
 import { useNavigate, useRevalidator, useRouteLoaderData } from 'react-router-dom';
 import { post } from '../fetch';
-import Switch from "react-switch";
 import { storeHost } from '../utils';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function SelectSyncProperties() {
     const store: any = useRouteLoaderData("root");
@@ -20,18 +19,39 @@ export default function SelectSyncProperties() {
     const [title, setTitle] = useState(store.user.sync_fields['title']);
     const [description, setDescription] = useState(store.user.sync_fields['body_html']);
     const [tags, setTags] = useState(store.user.sync_fields['tags']);
-    const [customType, setCustomType] = useState(store.user.sync_fields['product_type']);
+    const [productType, setProductType] = useState(store.user.sync_fields['product_type']);
     const [images, setImages] = useState(store.user.sync_fields['images']);
     const [status, setStatus] = useState(store.user.sync_fields['status']);
     const [publishedAt, setPublishedAt] = useState(store.user.sync_fields['published_at']);
     const [variants, setVariants] = useState(store.user.sync_fields['variants']);
 
-    const handleToggle = async () => {
-        await post("/stores/" + storeHost(store.url), { sync_products: !store.sync_products })
-            .then((_store) => {
+    const syncProperty = store.user.sync_property == 'sku' ? 'SKU' : 'Barcode'
+
+    useEffect(() => {
+        let sync_fields = {
+            sku: sku,
+            cost: cost,
+            tags: tags,
+            price: price,
+            title: title,
+            images: images,
+            status: status,
+            barcode: barcode,
+            variants: variants,
+            body_html: description,
+            product_type: productType,
+            published_at: publishedAt,
+            inventory_level: inventoryLevel,
+            compare_at_price: compareAtPrice,
+            inventory_policy: inventoryPolicy
+        }
+
+        post("/user", { sync_fields: sync_fields })
+            .then(() => {
                 revalidator.revalidate()
+                console.log('ok')
             })
-    }
+    }, [inventoryLevel, price, compareAtPrice, cost, inventoryPolicy, sku, barcode, title, description, tags, productType, images, status, publishedAt, variants])
 
     return (
         <AlphaStack gap="4">
@@ -40,19 +60,59 @@ export default function SelectSyncProperties() {
             </Text>
 
             <Text as="p">
-                Configure exactly which product and variant properties that Synkro should sync between your products. If syncing on a property is disabled, Synkro will not sync that property between your products.
+                Configure exactly which product and variant properties that Synkro should sync between your stores. This setting applies to all stores which you connect to your Synkro account.
             </Text>
 
             <Text variant="headingLg" as="h5">
-                Variant properties
+                {syncProperty}-based syncable properties
             </Text>
 
             <Text as="p">
-                Variant properties will be synced within and between your connected stores based on the changed variant's {store.user.sync_property}. In order to sync inventory levels, ensure you have configured your Location Connections setting.
+                These selected variant properties will be synced to other variants within and between your connected stores which have the same {syncProperty}. In order to sync inventory levels, ensure you have configured your Location Connections setting.
             </Text>
 
             <Checkbox label="Inventory level" checked={inventoryLevel} onChange={(value) => setInventoryLevel(value)} />
+            <Checkbox label="Price" checked={price} onChange={(value) => setPrice(value)} />
+            <Checkbox label="Compare at price" checked={compareAtPrice} onChange={(value) => setCompareAtPrice(value)} />
+            <Checkbox label="Cost" checked={cost} onChange={(value) => setCost(value)} />
+            <Checkbox label="Inventory policy (continue selling when out of stock)" checked={inventoryPolicy} onChange={(value) => setInventoryPolicy(value)} />
 
+            <Text variant="headingLg" as="h5">
+                Product syncable properties
+            </Text>
+
+            <Text as="p">
+                Select which product properties you would like Synkro to sync between your stores.
+            </Text>
+
+            <Banner
+                title="A note about product property syncing"
+                status="info"
+            >
+                <Text as="p">
+                    Synkro can only sync product properties from a "parent" product to a "child" product. When a product is created via Synkro's "Clone Product" tool, it becomes the "child" product and will be kept in sync with the "parent" product from the origin store.
+                    <br />
+                    <br />
+                    If you have existing products in your stores which were not created via Synkro's "Product Clone" tool and would like product property syncing, please reach out to Synkro customer support and we will be happy to assist you.
+                </Text>
+            </Banner>
+
+            <Checkbox label="SKU" checked={sku} onChange={(value) => setSku(value)} />
+            <Checkbox label="Barcode" checked={barcode} onChange={(value) => setBarcode(value)} />
+            <Checkbox label="Title" checked={title} onChange={(value) => setTitle(value)} />
+            <Checkbox label="Description" checked={description} onChange={(value) => setDescription(value)} />
+            <Checkbox label="Tags" checked={tags} onChange={(value) => setTags(value)} />
+            <Checkbox label="Type" checked={productType} onChange={(value) => setProductType(value)} />
+            <Checkbox label="Images" checked={images} onChange={(value) => setImages(value)} />
+            <Checkbox label="Status (active, draft, archived)" checked={status} onChange={(value) => setStatus(value)} />
+            <Checkbox label="Published on Online Store" checked={publishedAt} onChange={(value) => setPublishedAt(value)} />
+            <Checkbox label="Variants" checked={variants} onChange={(value) => setVariants(value)} />
+
+            <ButtonGroup>
+                <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/enable-syncing') }}>
+                    Continue to next step
+                </Button>
+            </ButtonGroup>
         </AlphaStack >
     );
 }
