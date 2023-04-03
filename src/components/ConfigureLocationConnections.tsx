@@ -175,61 +175,79 @@ export default function ConfigureLocationConnections() {
                 Synkro will use this to determine how the different inventory locations in your stores should be synced.
             </Text>
 
-            {locationConnectionBreakdowns.length > 0 ? (
-                <Text variant="headingXl" as="h4">
-                    Current location connections
-                </Text>
-            ): null}
+            {store.connected_stores.length > 0 ? (<>
+                {
+                    locationConnectionBreakdowns.length > 0 ? (
+                        <Text variant="headingXl" as="h4">
+                            Current location connections
+                        </Text>
+                    ) : null
+                }
 
-            <ExistingLocationConnections store={store} locations={locations} storeLocationConnections={storeLocationConnections} setStoreLocationConnections={setStoreLocationConnections} />
+                < ExistingLocationConnections store={store} locations={locations} storeLocationConnections={storeLocationConnections} setStoreLocationConnections={setStoreLocationConnections} />
 
-            <AlphaStack gap="4">
-                <Text variant="headingXl" as="h4">
-                    Create new location connection
-                </Text>
-                <Columns gap="4" columns={4}>
-                    <Select
-                        label={<strong>Inventory changes in store</strong>}
-                        options={fromStoreOptions}
-                        value={selectedFromStore}
-                        onChange={handleSelectFromStore}
-                    />
-                    <Select
-                        label={<strong>at location</strong>}
-                        options={fromStoreLocationOptions}
-                        value={selectedFromStoreLocation}
-                        onChange={handleSelectFromStoreLocation}
-                    />
-                    <Select
-                        label={<strong>should sync to store</strong>}
-                        options={otherStoreOptions}
-                        value={selectedOtherStore}
-                        onChange={handleSelectOtherStore}
-                        disabled={selectedOtherStore == ""}
-                    />
-                    {selectedOtherStore != "" ? (
+                <AlphaStack gap="4">
+                    <Text variant="headingXl" as="h4">
+                        Create new location connection
+                    </Text>
+                    <Columns gap="4" columns={4}>
+                        <Select
+                            label={<strong>Inventory changes in store</strong>}
+                            options={fromStoreOptions}
+                            value={selectedFromStore}
+                            onChange={handleSelectFromStore}
+                        />
                         <Select
                             label={<strong>at location</strong>}
-                            options={otherStoreLocationOptions}
-                            value={selectedOtherStoreLocation}
-                            onChange={handleSelectOtherStoreLocation}
+                            options={fromStoreLocationOptions}
+                            value={selectedFromStoreLocation}
+                            onChange={handleSelectFromStoreLocation}
                         />
-                    ) : null}
-                </Columns>
-                <Checkbox
-                    label="In both directions"
-                    checked={biDirectional}
-                    onChange={handleBiDirectionalChange}
-                />
-                {createLocationConnectionError}
-                <ButtonGroup>
-                    <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Save location connection</Button>
-                    {toastMarkup}
-                </ButtonGroup>
-                <ButtonGroup>
-                    <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
-                </ButtonGroup>
-            </AlphaStack >
+                        <Select
+                            label={<strong>should sync to store</strong>}
+                            options={otherStoreOptions}
+                            value={selectedOtherStore}
+                            onChange={handleSelectOtherStore}
+                            disabled={selectedOtherStore == ""}
+                        />
+                        {selectedOtherStore != "" ? (
+                            <Select
+                                label={<strong>at location</strong>}
+                                options={otherStoreLocationOptions}
+                                value={selectedOtherStoreLocation}
+                                onChange={handleSelectOtherStoreLocation}
+                            />
+                        ) : null}
+                    </Columns>
+                    <Checkbox
+                        label="In both directions"
+                        checked={biDirectional}
+                        onChange={handleBiDirectionalChange}
+                    />
+                    {createLocationConnectionError}
+                    <ButtonGroup>
+                        <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Save location connection</Button>
+                        {toastMarkup}
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
+                    </ButtonGroup>
+                </AlphaStack >
+            </>) : (
+                <>
+                    <Text variant="headingLg" as="h4">
+                        Connect some more stores before configuring location connections
+                    </Text>
+
+                    <Text as="p">
+                        Location connections are only available when syncing two or more stores
+                    </Text>
+                    
+                    <ButtonGroup>
+                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
+                    </ButtonGroup>
+                </>
+            )}
         </AlphaStack >
     );
 }
