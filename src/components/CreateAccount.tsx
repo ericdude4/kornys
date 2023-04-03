@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { ActionFunctionArgs, Form, useActionData } from 'react-router-dom';
 import { post } from '../fetch';
 import { storeHost, authenticatedRedirect } from '../utils';
+import InlineApiErrors from './InlineApiErrors';
 
 export async function action({ request, params }: ActionFunctionArgs) {
     const formData = await request.formData();
     const formEntries: any = Object.fromEntries(formData);
-    const response: any = await post("/connect_to_user", { email: formEntries.email, password: formEntries.password });
+    const response: any = await post("/create_user", { name: formEntries.name, email: formEntries.email, password: formEntries.password });
 
     if (response.errors) {
         return response.errors
@@ -16,14 +17,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 }
 
-type LoginProps = {
+type CreateAccountProps = {
     // where to redirect after successful login
     scopedRedirectAfter: string
 }
 
-export default function Login({ scopedRedirectAfter }: LoginProps) {
+export default function CreateAccount({ scopedRedirectAfter }: CreateAccountProps) {
     const errors: any = useActionData() || {};
 
+    const [name, handleNameChange] = useState('');
     const [email, handleEmailChange] = useState('');
     const [password, handlePasswordChange] = useState('');
 
@@ -32,25 +34,42 @@ export default function Login({ scopedRedirectAfter }: LoginProps) {
             <FormLayout>
                 <input hidden name='scopedRedirectAfter' value={scopedRedirectAfter} readOnly />
                 <TextField
+                    value={name}
+                    onChange={handleNameChange}
+                    label="Name"
+                    id='create_name'
+                    type="text"
+                    name="name"
+                    autoComplete="name"
+                />
+                <TextField
                     value={email}
                     onChange={handleEmailChange}
-                    label="Synkro account Email"
-                    id='email'
+                    label="Email"
+                    id='create_email'
                     type="email"
                     name="email"
                     autoComplete="email"
+                    helpText={
+                        <span>
+                            This email address will also be used for customer support requests.
+                        </span>
+                    }
+
                 />
                 <TextField
                     value={password}
                     onChange={handlePasswordChange}
                     label="Password"
+                    id="create_password"
                     type="password"
                     name="password"
                     autoComplete="password"
                 />
 
-                {errors.authentication ? (<InlineError message={errors.authentication} fieldID={'email'} />) : null}
-                <Button submit primary>Log in</Button>
+
+                {errors ? (<InlineApiErrors scope='create' apiErrors={errors} />) : null}
+                <Button submit primary>Create Synkro account</Button>
             </FormLayout>
         </Form>
 

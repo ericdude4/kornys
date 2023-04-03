@@ -7,13 +7,14 @@ import Root, { loader as rootLoader } from '../routes/Root';
 import Products, { loader as productLoader } from "../routes/Products";
 import Home from "../routes/Home";
 import Onboarding from "../routes/Onboarding";
-import { action as loginAction } from "./Login";
+import Login, { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
 import ConfigureLocationConnections, { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
 import EnableSyncing from "./EnableSyncing";
 import CompleteOnboarding from "./CompleteOnboarding";
 import SelectSyncProperties from "./SelectSyncProperties";
+import CreateAccount, { action as createAccountAction } from "./CreateAccount";
 
 function Main() {
   const router = createBrowserRouter([
@@ -35,6 +36,17 @@ function Main() {
             {
               path: "connect",
               element: <ConnectAccount />,
+              children: [
+                {
+                  path: "",
+                  element: <Login scopedRedirectAfter={'/onboarding/connect'} />,
+                },
+                {
+                  path: "create",
+                  element: <CreateAccount scopedRedirectAfter={'/onboarding/connect'} />,
+                  action: createAccountAction,
+                }
+              ],
               action: loginAction
             },
             {

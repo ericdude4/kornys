@@ -10,7 +10,9 @@ export default function Onboarding() {
 
     useEffect(() => {
         // todo: determine which onboarding step to send user to
-        // navigate('/' + storeHost(store.url) + '/onboarding/connect')
+        if (!store.user) {
+            navigate('/' + storeHost(store.url) + '/onboarding/connect')
+        }
     }, [])
 
     const tabs = [
@@ -68,12 +70,18 @@ export default function Onboarding() {
     return (
         <Page title={'Setup Synkro for ' + store.url}>
             <LegacyCard>
-                <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
+                {store.user ? (
+                    <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
+                        <LegacyCard.Section>
+                            <Outlet />
+                        </LegacyCard.Section>
+                    </Tabs>
+                ) : (
                     <LegacyCard.Section>
                         <Outlet />
                     </LegacyCard.Section>
-                </Tabs>
+                )}
             </LegacyCard>
-        </Page>
+        </Page >
     );
 }
