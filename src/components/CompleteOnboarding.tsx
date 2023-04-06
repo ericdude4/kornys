@@ -51,7 +51,7 @@ export default function CompleteOnboarding() {
             </Text>
 
             <Text as="p" alignment='center'>
-                You have completed onboarding for <strong>{store.name}</strong>
+                You have completed basic onboarding for <strong>{store.name}</strong>
             </Text>
 
             <div className='gap'></div>

@@ -12,6 +12,8 @@ export default function Onboarding() {
         // todo: determine which onboarding step to send user to
         if (!store.user) {
             navigate('/' + storeHost(store.url) + '/onboarding/connect')
+        } else {
+            navigate('/' + storeHost(store.url) + '/onboarding/choose-sync-field')
         }
     }, [])
 
