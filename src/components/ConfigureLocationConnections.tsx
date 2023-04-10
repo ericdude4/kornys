@@ -167,14 +167,6 @@ export default function ConfigureLocationConnections() {
 
     return (
         <AlphaStack gap="4">
-            <Text variant="heading2xl" as="h3">
-                Configure inventory location connections
-            </Text>
-
-            <Text as="p">
-                Synkro will use this to determine how the different inventory locations in your stores should be synced.
-            </Text>
-
             {store.connected_stores.length > 0 ? (<>
                 {
                     locationConnectionBreakdowns.length > 0 ? (

@@ -1,4 +1,4 @@
-import { AlphaCard, Page } from '@shopify/polaris';
+import { AlphaCard, AlphaStack, Page, Text } from '@shopify/polaris';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 import ConfigureLocationConnections from '../../components/ConfigureLocationConnections';
 import { storeHost } from '../../utils';
@@ -11,10 +11,20 @@ export default function LocationConnections() {
         <Page
             breadcrumbs={[{ content: 'Settings', url: '/' + storeHost(store.url) + '/settings' }]}
             title="Location connections"
-            subtitle="Tell Synkro how inventory levels should be synced between different inventory locations in your stores"
+            subtitle="Connect inventory locations within and between your Shopify stores"
         >
             <AlphaCard>
-                <ConfigureLocationConnections />
+                <AlphaStack gap="4">
+                    <Text variant="heading2xl" as="h3">
+                        Multi-store location connections
+                    </Text>
+
+                    <Text as="p">
+                        Synkro will use this to determine how the different inventory locations in your stores should be synced.
+                    </Text>
+
+                    <ConfigureLocationConnections />
+                </AlphaStack>
             </AlphaCard>
         </Page>
     );
