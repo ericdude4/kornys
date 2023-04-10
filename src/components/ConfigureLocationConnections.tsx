@@ -226,11 +226,8 @@ export default function ConfigureLocationConnections() {
                     />
                     {createLocationConnectionError}
                     <ButtonGroup>
-                        <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Save location connection</Button>
+                        <Button primary onClick={() => saveLocationConnection()} disabled={selectedOtherStore == "" || selectedFromStoreLocation == ""}>Create location connection</Button>
                         {toastMarkup}
-                    </ButtonGroup>
-                    <ButtonGroup>
-                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
                     </ButtonGroup>
                 </AlphaStack >
             </>) : (
@@ -242,10 +239,6 @@ export default function ConfigureLocationConnections() {
                     <Text as="p">
                         Location connections are only available when syncing two or more stores
                     </Text>
-                    
-                    <ButtonGroup>
-                        <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/customize-syncing') }}>Continue to next step</Button>
-                    </ButtonGroup>
                 </>
             )}
         </AlphaStack >

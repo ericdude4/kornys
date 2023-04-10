@@ -10,13 +10,14 @@ import Onboarding from "../routes/Onboarding";
 import Login, { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
-import ConfigureLocationConnections, { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
+import { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
 import EnableSyncing from "./EnableSyncing";
 import CompleteOnboarding from "./CompleteOnboarding";
 import SelectSyncProperties from "./SelectSyncProperties";
 import CreateAccount, { action as createAccountAction } from "./CreateAccount";
 import Settings from "../routes/Settings";
-import LocationConnections from "../routes/Settings/LocationConnections";
+import { default as OnboardingLocationConnections } from "../routes/Onboarding/LocationConnections";
+import {default as SettingsLocationConnections } from "../routes/Settings/LocationConnections";
 
 function Main() {
   const router = createBrowserRouter([
@@ -57,7 +58,7 @@ function Main() {
             },
             {
               path: "location-connections",
-              element: <ConfigureLocationConnections />,
+              element: <OnboardingLocationConnections />,
               loader: locationConnectionsLoader
             },
             {
@@ -85,7 +86,8 @@ function Main() {
           children: [
             {
               path: "location-connections",
-              element: <LocationConnections />
+              element: <SettingsLocationConnections />,
+              loader: locationConnectionsLoader
             },
           ]
         },

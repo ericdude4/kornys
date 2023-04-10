@@ -71,8 +71,6 @@ export default function Root() {
         />
     );
 
-    console.log(location.pathname)
-
     const navigationMarkup = (
         <Navigation location={location.pathname}>
             <Navigation.Section
