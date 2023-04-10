@@ -15,6 +15,7 @@ import EnableSyncing from "./EnableSyncing";
 import CompleteOnboarding from "./CompleteOnboarding";
 import SelectSyncProperties from "./SelectSyncProperties";
 import CreateAccount, { action as createAccountAction } from "./CreateAccount";
+import Settings from "../routes/Settings";
 
 function Main() {
   const router = createBrowserRouter([
@@ -76,6 +77,10 @@ function Main() {
           path: "products",
           element: <Products />,
           loader: productLoader,
+        },
+        {
+          path: "settings",
+          element: <Settings />,
         },
       ],
     },

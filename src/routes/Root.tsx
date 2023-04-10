@@ -1,9 +1,12 @@
 import { Frame, Navigation, TopBar } from '@shopify/polaris';
 import { HomeMinor, SettingsMinor, ProductsMinor } from '@shopify/polaris-icons';
 import { useState, useCallback } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link as ReactRouterLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
 import { get } from '../fetch';
+import { storeHost } from '../utils';
+import enTranslations from '@shopify/polaris/locales/en.json';
+import { AppProvider } from '@shopify/polaris';
 
 export async function loader({ params }: LoaderFunctionArgs) {
     let storeUrl = params.storeUrl || ""
@@ -38,7 +41,7 @@ export default function Root() {
         return {
             items: [
                 {
-                    content: <Link className='switch-store-link' to={"/" + store.url.replace(".myshopify.com", "")}>{store.name}</Link>
+                    content: <ReactRouterLink className='switch-store-link' to={"/" + store.url.replace(".myshopify.com", "")}>{store.name}</ReactRouterLink>
                 }
             ]
         }
@@ -68,28 +71,42 @@ export default function Root() {
         />
     );
 
+    console.log(location.pathname)
+
     const navigationMarkup = (
-        <Navigation location="/">
+        <Navigation location={location.pathname}>
             <Navigation.Section
                 items={[
                     {
-                        onClick: () => { navigate('/' + store.url) },
+                        url: '/' + storeHost(store.url),
                         label: 'Home',
                         icon: HomeMinor,
-                        selected: location.pathname == '/' + store.url
+                        exactMatch: true,
                     },
                     {
-                        onClick: () => { navigate('/' + store.url + '/products') },
-                        excludePaths: ['#'],
+                        url: '/' + storeHost(store.url) + '/products',
                         label: 'Products',
-                        icon: ProductsMinor,
-                        selected: location.pathname == '/' + store.url + '/products'
+                        icon: ProductsMinor
                     },
                     {
-                        url: '#',
-                        excludePaths: ['#'],
+                        url: '/' + storeHost(store.url) + '/settings',
                         label: 'Settings',
-                        icon: SettingsMinor
+                        icon: SettingsMinor,
+                        subNavigationItems: [
+                            {
+                                url: '#',
+                                excludePaths: ['#'],
+                                disabled: false,
+                                label: 'Collections',
+                            },
+                            {
+                                url: '#',
+                                excludePaths: ['#'],
+                                disabled: false,
+                                label: 'Inventory',
+                            },
+                        ],
+
                     },
                 ]}
             />
@@ -97,14 +114,42 @@ export default function Root() {
     )
 
     return (
-        <Frame
-            logo={logo}
-            topBar={topBarMarkup}
-            navigation={navigationMarkup}
-            onNavigationDismiss={toggleMobileNavigationActive}
-            showMobileNavigation={mobileNavigationActive}>
-            <Outlet />
-        </Frame>
+
+        <AppProvider i18n={enTranslations} linkComponent={Link}>
+            <Frame
+                logo={logo}
+                topBar={topBarMarkup}
+                navigation={navigationMarkup}
+                onNavigationDismiss={toggleMobileNavigationActive}
+                showMobileNavigation={mobileNavigationActive}>
+                <Outlet />
+                <div style={{ 'marginTop': '3rem' }}></div>
+            </Frame>
+        </AppProvider>
 
     );
 }
+
+const IS_EXTERNAL_LINK_REGEX = /^(?:[a-z][a-z\d+.-]*:|\/\/)/;
+
+function Link({ children, url = '', external, ref, ...rest }: any) {
+    // react-router only supports links to pages it can handle itself. It does not
+    // support arbirary links, so anything that is not a path-based link should
+    // use a reglar old `a` tag
+    if (external || IS_EXTERNAL_LINK_REGEX.test(url)) {
+        rest.target = '_blank';
+        rest.rel = 'noopener noreferrer';
+        return (
+            <a href={url} {...rest}>
+                {children}
+            </a>
+        );
+    }
+
+    return (
+        <ReactRouterLink to={url} {...rest}>
+            {children}
+        </ReactRouterLink>
+    );
+}
+
