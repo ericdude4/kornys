@@ -94,16 +94,9 @@ export default function Root() {
                         icon: SettingsMinor,
                         subNavigationItems: [
                             {
-                                url: '#',
-                                excludePaths: ['#'],
+                                url: '/' + storeHost(store.url) + '/settings/location-connections',
                                 disabled: false,
-                                label: 'Collections',
-                            },
-                            {
-                                url: '#',
-                                excludePaths: ['#'],
-                                disabled: false,
-                                label: 'Inventory',
+                                label: 'Location connections',
                             },
                         ],
 

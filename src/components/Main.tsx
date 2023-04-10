@@ -16,6 +16,7 @@ import CompleteOnboarding from "./CompleteOnboarding";
 import SelectSyncProperties from "./SelectSyncProperties";
 import CreateAccount, { action as createAccountAction } from "./CreateAccount";
 import Settings from "../routes/Settings";
+import LocationConnections from "../routes/Settings/LocationConnections";
 
 function Main() {
   const router = createBrowserRouter([
@@ -81,6 +82,12 @@ function Main() {
         {
           path: "settings",
           element: <Settings />,
+          children: [
+            {
+              path: "location-connections",
+              element: <LocationConnections />
+            },
+          ]
         },
       ],
     },
