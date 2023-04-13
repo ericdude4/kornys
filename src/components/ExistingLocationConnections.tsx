@@ -15,7 +15,6 @@ export default function ExistingLocationConnections({ store, storeLocationConnec
     let locationConnectionBreakdowns: any[] = buildLocationConnectionsBreadowns(store, storeLocationConnections, locations)
 
     const deleteLocationConnection = async (topStore: any, topLocation: any, connectedStore: any) => {
-        console.log(store.user.location_connections[topStore.url][topLocation.id])
         delete store.user.location_connections[topStore.url][topLocation.id][connectedStore.url]
 
         await post("/user", { location_connections: store.user.location_connections })

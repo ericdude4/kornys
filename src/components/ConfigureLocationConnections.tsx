@@ -9,9 +9,12 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return get("/locations").then(locations => { return locations });
 }
 
-export default function ConfigureLocationConnections() {
+type ConfigureLocationConnectionArgs = {
+    locations: any
+}
+
+export default function ConfigureLocationConnections({ locations }: ConfigureLocationConnectionArgs) {
     const store: any = useRouteLoaderData("root");
-    const locations: any = useLoaderData();
     const navigate = useNavigate();
 
     const [storeLocationConnections, setStoreLocationConnections] = useState(store.user.location_connections)
