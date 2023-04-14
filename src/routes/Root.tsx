@@ -94,7 +94,12 @@ export default function Root() {
                             {
                                 url: '/' + storeHost(store.url) + '/settings/location-connections',
                                 disabled: false,
-                                label: 'Inventory location syncing',
+                                label: 'Location connections',
+                            },
+                            {
+                                url: '/' + storeHost(store.url) + '/settings/customize-syncing',
+                                disabled: false,
+                                label: 'Customize syncing',
                             },
                         ],
 

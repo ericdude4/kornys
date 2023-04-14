@@ -107,12 +107,6 @@ export default function SelectSyncProperties() {
             <Checkbox label="Status (active, draft, archived)" checked={status} onChange={(value) => setStatus(value)} />
             <Checkbox label="Published on Online Store" checked={publishedAt} onChange={(value) => setPublishedAt(value)} />
             <Checkbox label="Variants" checked={variants} onChange={(value) => setVariants(value)} />
-
-            <ButtonGroup>
-                <Button primary onClick={() => { navigate('/' + storeHost(store.url) + '/onboarding/enable-syncing') }}>
-                    Continue to next step
-                </Button>
-            </ButtonGroup>
         </AlphaStack >
     );
 }

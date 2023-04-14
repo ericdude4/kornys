@@ -9,12 +9,10 @@ export default function LocationConnections() {
     const navigate = useNavigate();
     const locations: any = useLoaderData();
 
-    console.log(store.user)
-
     return (
         <Page
-            breadcrumbs={[{ content: 'Settings', url: '/' + storeHost(store.url) + '/settings' }]}
-            title="Location connections"
+            backAction={{ content: 'Settings', url: '/' + storeHost(store.url) + '/settings' }}
+            title="Manage location connections"
             subtitle="Connect inventory locations within and between your Shopify stores"
         >
             <AlphaStack gap="4">
