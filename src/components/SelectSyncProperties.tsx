@@ -14,6 +14,9 @@ export default function SelectSyncProperties() {
     const [compareAtPrice, setCompareAtPrice] = useState(store.user.sync_fields['compare_at_price']);
     const [cost, setCost] = useState(store.user.sync_fields['cost']);
     const [inventoryPolicy, setInventoryPolicy] = useState(store.user.sync_fields['inventory_policy']);
+    const [weight, setWeight] = useState(store.user.sync_fields['weight']);
+    const [weightUnit, setWeightUnit] = useState(store.user.sync_fields['weight_unit']);
+    const [options, setOptions] = useState(store.user.sync_fields['option1']);
     const [sku, setSku] = useState(store.user.sync_fields['sku']);
     const [barcode, setBarcode] = useState(store.user.sync_fields['barcode']);
     const [title, setTitle] = useState(store.user.sync_fields['title']);
@@ -24,6 +27,7 @@ export default function SelectSyncProperties() {
     const [status, setStatus] = useState(store.user.sync_fields['status']);
     const [publishedAt, setPublishedAt] = useState(store.user.sync_fields['published_at']);
     const [variants, setVariants] = useState(store.user.sync_fields['variants']);
+    const [variantDeletion, setVariantDeletion] = useState(store.user.sync_fields['variant_deletion']);
 
     const syncProperty = store.user.sync_property == 'sku' ? 'SKU' : 'Barcode'
 
@@ -43,15 +47,20 @@ export default function SelectSyncProperties() {
             published_at: publishedAt,
             inventory_level: inventoryLevel,
             compare_at_price: compareAtPrice,
-            inventory_policy: inventoryPolicy
+            inventory_policy: inventoryPolicy,
+            weight: weight,
+            weight_unit: weightUnit,
+            option1: options,
+            option2: options,
+            option3: options,
+            variant_deletion: variantDeletion
         }
 
         post("/user", { sync_fields: sync_fields })
             .then(() => {
                 revalidator.revalidate()
-                console.log('ok')
             })
-    }, [inventoryLevel, price, compareAtPrice, cost, inventoryPolicy, sku, barcode, title, description, tags, productType, images, status, publishedAt, variants])
+    }, [inventoryLevel, price, compareAtPrice, cost, inventoryPolicy, sku, weight, weightUnit, options, barcode, title, description, tags, productType, images, status, publishedAt, variants, variantDeletion])
 
     return (
         <AlphaStack gap="4">
@@ -76,6 +85,9 @@ export default function SelectSyncProperties() {
             <Checkbox label="Compare at price" checked={compareAtPrice} onChange={(value) => setCompareAtPrice(value)} />
             <Checkbox label="Cost" checked={cost} onChange={(value) => setCost(value)} />
             <Checkbox label="Inventory policy (continue selling when out of stock)" checked={inventoryPolicy} onChange={(value) => setInventoryPolicy(value)} />
+            <Checkbox label="Weight" checked={weight} onChange={(value) => setWeight(value)} />
+            <Checkbox label="Weight unit (lb, oz, kg, g)" checked={weightUnit} onChange={(value) => setWeightUnit(value)} />
+            <Checkbox label="Options" checked={options} onChange={(value) => setOptions(value)} />
 
             <Text variant="headingLg" as="h5">
                 Product syncable properties
@@ -107,6 +119,7 @@ export default function SelectSyncProperties() {
             <Checkbox label="Status (active, draft, archived)" checked={status} onChange={(value) => setStatus(value)} />
             <Checkbox label="Published on Online Store" checked={publishedAt} onChange={(value) => setPublishedAt(value)} />
             <Checkbox label="Variants" checked={variants} onChange={(value) => setVariants(value)} />
+            <Checkbox label="Variant deletion" checked={variantDeletion} onChange={(value) => setVariantDeletion(value)} />
         </AlphaStack >
     );
 }
