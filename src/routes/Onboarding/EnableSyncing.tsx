@@ -20,6 +20,7 @@ export default function EnableSyncing() {
     const handleCompleteOnboarding = async () => {
         await post("/stores/" + storeHost(store.url), { metadata: { completed_onboarding: true } })
             .then((_store) => {
+                revalidator.revalidate()
                 navigate('/' + storeHost(store.url) + '/onboarding/complete')
             })
     }
