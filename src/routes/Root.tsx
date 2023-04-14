@@ -7,6 +7,7 @@ import { get } from '../fetch';
 import { storeHost } from '../utils';
 import enTranslations from '@shopify/polaris/locales/en.json';
 import { AppProvider } from '@shopify/polaris';
+import ToggleSyncing from '../components/ToggleSyncing';
 
 export async function loader({ params }: LoaderFunctionArgs) {
     let storeUrl = params.storeUrl || ""
@@ -68,6 +69,13 @@ export default function Root() {
             showNavigationToggle
             userMenu={userMenuMarkup}
             onNavigationToggle={toggleMobileNavigationActive}
+            secondaryMenu={
+                <>
+                    {store.completed_onboarding ? (
+                        <div style={{ marginRight: '1em' }}><ToggleSyncing /></div>
+                    ) : null}
+                </>
+            }
         />
     );
 

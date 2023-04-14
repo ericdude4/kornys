@@ -11,7 +11,7 @@ import Login, { action as loginAction } from "./Login";
 import ConnectAccount from "./ConnectAccount";
 import ChooseSyncField from "./ChooseSyncField";
 import { loader as locationConnectionsLoader } from "./ConfigureLocationConnections";
-import EnableSyncing from "./EnableSyncing";
+import EnableSyncing from "../routes/Onboarding/EnableSyncing";
 import CompleteOnboarding from "./CompleteOnboarding";
 import CreateAccount, { action as createAccountAction } from "./CreateAccount";
 import Settings from "../routes/Settings";

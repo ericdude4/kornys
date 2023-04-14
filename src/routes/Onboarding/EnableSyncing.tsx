@@ -1,8 +1,9 @@
 import { Text, AlphaStack, Button, ButtonGroup } from '@shopify/polaris';
 import { useNavigate, useRevalidator, useRouteLoaderData } from 'react-router-dom';
-import { post } from '../fetch';
+import { post } from '../../fetch';
 import Switch from "react-switch";
-import { storeHost } from '../utils';
+import { storeHost } from '../../utils';
+import ToggleSyncing from '../../components/ToggleSyncing';
 
 export default function EnableSyncing() {
     const store: any = useRouteLoaderData("root");
@@ -36,16 +37,7 @@ export default function EnableSyncing() {
                 This switch serves as the "master toggle" to enable or disable syncing on this store.
             </Text>
 
-            <Switch
-                onChange={handleToggle}
-                checked={store.sync_products}
-                checkedIcon={<div className='sync-toggle-text-enabled'>Syncing</div>}
-                uncheckedIcon={<div className='sync-toggle-text-disabled'>Disabled</div>}
-                // translated var(--p-action-primary) to hex
-                onColor="#008060"
-                handleDiameter={28}
-                width={130}
-                height={35} />
+            <ToggleSyncing />
 
             {store.sync_products ? (
                 <>
