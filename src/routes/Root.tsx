@@ -109,6 +109,11 @@ export default function Root() {
                                 disabled: false,
                                 label: 'Customize syncing',
                             },
+                            {
+                                url: '/' + storeHost(store.url) + '/settings/choose-sync-field',
+                                disabled: false,
+                                label: 'Manage sync property',
+                            },
                         ],
 
                     },
