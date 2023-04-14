@@ -183,7 +183,7 @@ export default function ConfigureLocationConnections({ locations }: ConfigureLoc
 
                 <AlphaStack gap="4">
                     <Text variant="headingXl" as="h4">
-                        Create new location connection
+                        Create new multi-store location connection
                     </Text>
                     <Columns gap="4" columns={4}>
                         <Select

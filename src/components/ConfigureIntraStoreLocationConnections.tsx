@@ -44,7 +44,7 @@ export default function ConfigureIntraStoreLocationConnections({ locations }: Co
                         options={locations[store.url]
                             .filter((otherLocation: any) => otherLocation.id != location.id)
                             .map((otherLocation: any) => {
-                                return { value: otherLocation.id, label: otherLocation.name }
+                                return { value: `${otherLocation.id}`, label: otherLocation.name }
                             })}
                         selected={typeof storeLocationConnections[location.id] == 'undefined' ? [] : storeLocationConnections[location.id]}
                         allowMultiple
