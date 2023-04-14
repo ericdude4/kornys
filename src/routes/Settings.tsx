@@ -5,7 +5,6 @@ export default function Settings() {
     const navigate = useNavigate();
     const outlet = useOutlet()
 
-    console.log(outlet)
     return (
         <>
             {outlet ? outlet : "placeholder"}
