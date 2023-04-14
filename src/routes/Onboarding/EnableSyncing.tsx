@@ -10,13 +10,6 @@ export default function EnableSyncing() {
     let revalidator = useRevalidator();
     const navigate = useNavigate();
 
-    const handleToggle = async () => {
-        await post("/stores/" + storeHost(store.url), { sync_products: !store.sync_products })
-            .then((_store) => {
-                revalidator.revalidate()
-            })
-    }
-
     const handleCompleteOnboarding = async () => {
         await post("/stores/" + storeHost(store.url), { metadata: { completed_onboarding: true } })
             .then((_store) => {

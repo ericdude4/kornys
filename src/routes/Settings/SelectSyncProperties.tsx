@@ -3,11 +3,11 @@ import { useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom
 import ConfigureIntraStoreLocationConnections from '../../components/ConfigureIntraStoreLocationConnections';
 import ConfigureLocationConnections from '../../components/ConfigureLocationConnections';
 import SelectSyncProperties from '../../components/SelectSyncProperties';
+import SyncOverrides from '../../components/SyncOverrides';
 import { storeHost } from '../../utils';
 
 export default function LocationConnections() {
     const store: any = useRouteLoaderData("root");
-    const navigate = useNavigate();
 
     return (
         <Page
@@ -15,9 +15,15 @@ export default function LocationConnections() {
             title="Customize syncing"
             subtitle="Configure exactly which product and variant properties that Synkro should sync between your stores."
         >
-            <AlphaCard>
-                <SelectSyncProperties />
-            </AlphaCard>
+            <AlphaStack gap="4">
+                <AlphaCard>
+                    <SelectSyncProperties />
+                </AlphaCard>
+                
+                <AlphaCard>
+                    <SyncOverrides />
+                </AlphaCard>
+            </AlphaStack>
         </Page>
     );
 }

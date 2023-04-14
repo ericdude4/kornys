@@ -4,7 +4,7 @@ import { post } from '../fetch';
 import { storeHost } from '../utils';
 import { useEffect, useState } from 'react';
 
-export default function SelectSyncProperties() {
+export default function SyncOverrides() {
     const store: any = useRouteLoaderData("root");
     let revalidator = useRevalidator();
     const navigate = useNavigate();
@@ -56,19 +56,11 @@ export default function SelectSyncProperties() {
     return (
         <AlphaStack gap="4">
             <Text variant="heading2xl" as="h3">
-                What should Synkro sync between your stores?
+                What should Synkro <i>not</i> sync for {storeHost(store.url)}?
             </Text>
 
             <Text as="p">
-                Configure exactly which product and variant properties that Synkro should sync between your stores. This setting applies to all stores which you connect to your Synkro account.
-            </Text>
-
-            <Text variant="headingLg" as="h5">
-                {syncProperty}-based syncable properties
-            </Text>
-
-            <Text as="p">
-                These selected variant properties will be synced to other variants within and between your connected stores which have the same {syncProperty}. In order to sync inventory levels, ensure you have configured your Location Connections setting.
+                Select which properties that Synkro should not sync for the current store ({store.url}). This includes incoming and outgoing changes.
             </Text>
 
             <Checkbox label="Inventory level" checked={inventoryLevel} onChange={(value) => setInventoryLevel(value)} />
@@ -76,27 +68,6 @@ export default function SelectSyncProperties() {
             <Checkbox label="Compare at price" checked={compareAtPrice} onChange={(value) => setCompareAtPrice(value)} />
             <Checkbox label="Cost" checked={cost} onChange={(value) => setCost(value)} />
             <Checkbox label="Inventory policy (continue selling when out of stock)" checked={inventoryPolicy} onChange={(value) => setInventoryPolicy(value)} />
-
-            <Text variant="headingLg" as="h5">
-                Product syncable properties
-            </Text>
-
-            <Text as="p">
-                Select which product properties you would like Synkro to sync between your stores.
-            </Text>
-
-            <Banner
-                title="A note about product property syncing"
-                status="info"
-            >
-                <Text as="p">
-                    Synkro can only sync product properties from a "parent" product to a "child" product. When a product is created via Synkro's "Clone Product" tool, it becomes the "child" product and will be kept in sync with the "parent" product from the origin store.
-                    <br />
-                    <br />
-                    If you have existing products in your stores which were not created via Synkro's "Product Clone" tool and would like product property syncing, please reach out to Synkro customer support and we will be happy to assist you.
-                </Text>
-            </Banner>
-
             <Checkbox label="SKU" checked={sku} onChange={(value) => setSku(value)} />
             <Checkbox label="Barcode" checked={barcode} onChange={(value) => setBarcode(value)} />
             <Checkbox label="Title" checked={title} onChange={(value) => setTitle(value)} />
