@@ -22,6 +22,7 @@ import { default as OnboardingManageSyncProperty } from "../routes/Onboarding/Ma
 import { default as SettingsLocationConnections } from "../routes/Settings/LocationConnections";
 import { default as SettingsSelectSyncProperties } from "../routes/Settings/SelectSyncProperties";
 import { default as SettingsManageSyncProperty } from "../routes/Settings/ManageSyncProperty";
+import CloneOptions from "../routes/Settings/CloneOptions";
 
 function Main() {
   const router = createBrowserRouter([
@@ -100,6 +101,10 @@ function Main() {
             {
               path: "choose-sync-field",
               element: <SettingsManageSyncProperty />
+            },
+            {
+              path: "product-cloning",
+              element: <CloneOptions />
             },
           ]
         },

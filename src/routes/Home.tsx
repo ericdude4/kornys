@@ -8,7 +8,7 @@ export default function Home() {
 
     useEffect(() => {
         // TODO make this conditional based on onboarding staus
-        if (store.completed_onboarding) {
+        if (!store.completed_onboarding) {
             navigate('/' + storeHost(store.url) + '/onboarding')
         }
     }, [])

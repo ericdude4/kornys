@@ -114,6 +114,11 @@ export default function Root() {
                                 disabled: false,
                                 label: 'Manage sync property',
                             },
+                            {
+                                url: '/' + storeHost(store.url) + '/settings/product-cloning',
+                                disabled: false,
+                                label: 'Clone products',
+                            },
                         ],
 
                     },
