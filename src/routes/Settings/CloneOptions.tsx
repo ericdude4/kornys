@@ -1,9 +1,6 @@
 import { AlphaCard, AlphaStack, Page, Text } from '@shopify/polaris';
-import { useLoaderData, useNavigate, useRouteLoaderData } from 'react-router-dom';
-import ConfigureIntraStoreLocationConnections from '../../components/ConfigureIntraStoreLocationConnections';
-import ConfigureLocationConnections from '../../components/ConfigureLocationConnections';
-import SelectSyncProperties from '../../components/SelectSyncProperties';
-import SyncOverrides from '../../components/SyncOverrides';
+import { useRouteLoaderData } from 'react-router-dom';
+import CloneAutoApplyTag from '../../components/CloneAutoApplyTag';
 import { storeHost } from '../../utils';
 
 export default function CloneOptions() {
@@ -17,6 +14,7 @@ export default function CloneOptions() {
         >
             <AlphaStack gap="4">
                 <AlphaCard>
+                    <CloneAutoApplyTag />
                 </AlphaCard>
             </AlphaStack>
         </Page>
