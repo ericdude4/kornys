@@ -1,6 +1,8 @@
+import { AlphaCard, AlphaStack, Page } from '@shopify/polaris';
 import { useEffect } from 'react';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
 import { storeHost } from '../utils';
+import Audits from '../components/Audits';
 
 export default function Home() {
     const store: any = useRouteLoaderData("root");
@@ -14,6 +16,6 @@ export default function Home() {
     }, [])
 
     return (
-        <div>home</div>
+        <Audits />
     );
 }

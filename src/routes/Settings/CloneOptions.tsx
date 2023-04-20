@@ -1,4 +1,4 @@
-import { AlphaCard, AlphaStack, Page, Text } from '@shopify/polaris';
+import { AlphaCard, AlphaStack, Page } from '@shopify/polaris';
 import { useRouteLoaderData } from 'react-router-dom';
 import CloneAutoApplyTag from '../../components/CloneAutoApplyTag';
 import { storeHost } from '../../utils';

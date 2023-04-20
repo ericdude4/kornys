@@ -14,6 +14,7 @@ import EnableSyncing from "../routes/Onboarding/EnableSyncing";
 import CompleteOnboarding from "./CompleteOnboarding";
 import CreateAccount, { action as createAccountAction } from "./CreateAccount";
 import Settings from "../routes/Settings";
+import { loader as auditLoader } from './Audits';
 
 import { default as OnboardingLocationConnections } from "../routes/Onboarding/LocationConnections";
 import { default as OnboardingSelectSyncProperties } from "../routes/Onboarding/SelectSyncProperties";
@@ -35,7 +36,8 @@ function Main() {
       children: [
         {
           path: "",
-          element: <Home />
+          element: <Home />,
+          loader: auditLoader,
         },
         {
           path: "onboarding",
